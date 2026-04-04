@@ -167,63 +167,6 @@
     © 2026 Imperial Soccer — Todos os direitos reservados
   </footer>
 
-  <!-- ── Evaluation Modal ──────────────────────────────────────────────── -->
-  <div
-    id="modalAvaliacaoBackdrop"
-    class="hidden fixed inset-0 bg-black/60 z-40 flex items-start sm:items-center justify-center p-4 overflow-y-auto"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modalTitulo"
-  >
-    <div id="modalAvaliacao" class="bg-imperial-dark-2 rounded-2xl p-6 w-full max-w-lg shadow-2xl border border-white/10 my-4">
-
-      <div class="mb-5">
-        <h3 id="modalTitulo" class="text-xl font-bold text-white">Avaliação do Aluno</h3>
-        <p id="modalAlunoNome" class="text-imperial-green-light text-sm mt-0.5"></p>
-      </div>
-
-      <!-- Técnico -->
-      <fieldset class="mb-5">
-        <legend class="text-sm font-semibold text-slate-300 mb-2">Técnico</legend>
-        <p id="erroTecnico" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
-        <div id="grupoTecnico" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
-      </fieldset>
-
-      <!-- Tático -->
-      <fieldset class="mb-5">
-        <legend class="text-sm font-semibold text-slate-300 mb-2">Tático</legend>
-        <p id="erroTatico" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
-        <div id="grupoTatico" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
-      </fieldset>
-
-      <!-- Mental -->
-      <fieldset class="mb-6">
-        <legend class="text-sm font-semibold text-slate-300 mb-2">Mental</legend>
-        <p id="erroMental" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
-        <div id="grupoMental" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
-      </fieldset>
-
-      <!-- Buttons -->
-      <div class="flex flex-col-reverse sm:flex-row gap-3 justify-end">
-        <button
-          type="button"
-          id="btnCancelarAvaliacao"
-          class="px-6 py-2.5 rounded-xl border border-white/20 text-slate-300 hover:text-white hover:border-white/40 font-medium transition-all"
-        >
-          Cancelar
-        </button>
-        <button
-          type="button"
-          id="btnConfirmarAvaliacao"
-          class="px-6 py-2.5 rounded-xl bg-imperial-green hover:bg-imperial-green-dark text-white font-semibold transition-all shadow-lg shadow-imperial-green/20"
-        >
-          Confirmar Avaliação
-        </button>
-      </div>
-
-    </div>
-  </div>
-
   <script type="module">
     // ─── Constants ──────────────────────────────────────────────────────────────
     const CATEGORIAS = ['Sub09', 'Sub10', 'Sub11', 'Sub12', 'Sub13', 'Sub14'];
@@ -236,13 +179,6 @@
       Sub13: 'Sub 13',
       Sub14: 'Sub 14',
     };
-
-    const NOTAS = [
-      { label: 'Excelente',        valor: 5 },
-      { label: 'Bom',              valor: 4 },
-      { label: 'Regular',          valor: 3 },
-      { label: 'Precisa Melhorar', valor: 2 },
-    ];
 
     const ICONS = {
       tecnico: `<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -262,9 +198,24 @@
       </svg>`,
     };
 
-    // ─── State ──────────────────────────────────────────────────────────────────
-    const state = { alunos: [], avaliacoes: [] };
-    let alunoEmAvaliacao = null;
+    // ─── State & sessionStorage ──────────────────────────────────────────────────
+    const STATE_KEY = 'imperialState';
+
+    function loadState() {
+      try {
+        const raw = sessionStorage.getItem(STATE_KEY);
+        if (!raw) return { alunos: [], avaliacoes: [] };
+        return JSON.parse(raw);
+      } catch {
+        return { alunos: [], avaliacoes: [] };
+      }
+    }
+
+    function saveState() {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
+
+    const state = loadState();
 
     // ─── Utilities ──────────────────────────────────────────────────────────────
     function generateId() {
@@ -321,28 +272,6 @@
     }
 
     // ─── Render nota radio group ────────────────────────────────────────────────
-    function renderNotaGroup(containerId, aspecto) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      NOTAS.forEach(nota => {
-        const id = `${aspecto}_${nota.valor}`;
-        const label = document.createElement('label');
-        label.htmlFor = id;
-        label.className = [
-          'flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border border-white/10',
-          'cursor-pointer text-center text-xs text-slate-300 transition-all select-none',
-          'hover:border-imperial-green',
-          'has-[:checked]:border-imperial-green has-[:checked]:bg-imperial-green/10 has-[:checked]:text-imperial-green-light',
-        ].join(' ');
-        label.innerHTML = `
-          <input type="radio" id="${id}" name="${aspecto}" value="${nota.valor}" class="sr-only" />
-          <span class="font-bold text-sm">${nota.valor}</span>
-          <span class="leading-tight">${nota.label}</span>
-        `;
-        container.appendChild(label);
-      });
-    }
-
     // ─── Render evaluation chips ────────────────────────────────────────────────
     function renderEvalChips(avaliacao) {
       const aspectos = [
@@ -418,9 +347,12 @@
         `;
       }).join('');
 
-      // Attach Avaliar button listeners (US3 integration)
+      // Attach Avaliar button listeners — navigates to student-eval page
       container.querySelectorAll('.btn-avaliar').forEach(btn => {
-        btn.addEventListener('click', () => abrirModal(btn.dataset.alunoId));
+        btn.addEventListener('click', () => {
+          saveState();
+          window.location.href = `student-eval.html?alunoId=${btn.dataset.alunoId}`;
+        });
       });
     }
 
@@ -482,6 +414,7 @@
       }
 
       state.alunos.push({ id: generateId(), nome, dataNascimento, categoria });
+      saveState();
 
       // Reset form fields
       document.getElementById('inputNome').value = '';
@@ -497,84 +430,77 @@
     document.getElementById('filtroNome').addEventListener('input', renderAlunos);
     document.getElementById('filtroCategoria').addEventListener('change', renderAlunos);
 
-    // ─── US3: Avaliação ─────────────────────────────────────────────────────────
-    function abrirModal(alunoId) {
-      alunoEmAvaliacao = alunoId;
-      const aluno = state.alunos.find(a => a.id === alunoId);
-      document.getElementById('modalAlunoNome').textContent = aluno ? aluno.nome : '';
+    // ─── Mock data ───────────────────────────────────────────────────────────────
+    const NOMES = ['Lucas', 'Gabriel', 'Pedro', 'Mateus', 'Rafael', 'Felipe', 'Gustavo', 'Henrique',
+                   'Bruno', 'Thiago', 'Carlos', 'Diego', 'André', 'Rodrigo', 'Leonardo',
+                   'Ana', 'Beatriz', 'Julia', 'Mariana', 'Larissa', 'Camila', 'Isabela',
+                   'Fernanda', 'Amanda', 'Natalia'];
+    const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Ferreira', 'Costa',
+                        'Rodrigues', 'Almeida', 'Nascimento', 'Carvalho', 'Pereira', 'Gomes', 'Martins', 'Rocha'];
+    const CATEGORIAS_MOCK = ['Sub09', 'Sub10', 'Sub11', 'Sub12', 'Sub13', 'Sub14'];
 
-      // Reset all aspect groups
-      ['Tecnico', 'Tatico', 'Mental'].forEach(key => {
-        renderNotaGroup(`grupo${key}`, key.toLowerCase());
-        const erroEl = document.getElementById(`erro${key}`);
-        if (erroEl) { erroEl.textContent = ''; erroEl.classList.add('hidden'); }
-      });
-
-      document.getElementById('modalAvaliacaoBackdrop').classList.remove('hidden');
-      document.getElementById('btnConfirmarAvaliacao').focus();
+    function gerarNomeAleatorio() {
+      const nome = NOMES[Math.floor(Math.random() * NOMES.length)];
+      const sobrenome = SOBRENOMES[Math.floor(Math.random() * SOBRENOMES.length)];
+      return `${nome} ${sobrenome}`;
     }
 
-    function fecharModal() {
-      document.getElementById('modalAvaliacaoBackdrop').classList.add('hidden');
-      alunoEmAvaliacao = null;
+    function gerarDataAleatoria(inicio, fim) {
+      const tsInicio = new Date(inicio).getTime();
+      const tsFim = new Date(fim).getTime();
+      const ts = tsInicio + Math.random() * (tsFim - tsInicio);
+      return new Date(ts).toISOString().split('T')[0];
     }
 
-    function validateAvaliacaoForm() {
-      const erros = [];
-      ['tecnico', 'tatico', 'mental'].forEach(aspecto => {
-        const selected = document.querySelector(`input[name="${aspecto}"]:checked`);
-        if (!selected) {
-          const label = aspecto.charAt(0).toUpperCase() + aspecto.slice(1);
-          erros.push({ aspecto: label, msg: `Selecione uma nota para ${label}.` });
-        }
-      });
-      return erros;
-    }
-
-    document.getElementById('btnConfirmarAvaliacao').addEventListener('click', function () {
-      // Clear previous errors
-      ['Tecnico', 'Tatico', 'Mental'].forEach(key => {
-        const el = document.getElementById(`erro${key}`);
-        if (el) { el.textContent = ''; el.classList.add('hidden'); }
-      });
-
-      const erros = validateAvaliacaoForm();
-      if (erros.length > 0) {
-        erros.forEach(e => {
-          const el = document.getElementById(`erro${e.aspecto}`);
-          if (el) { el.textContent = e.msg; el.classList.remove('hidden'); }
+    function gerarMockData() {
+      const alunos = [];
+      const avaliacoes = [];
+      for (let i = 0; i < 40; i++) {
+        const alunoId = generateId();
+        const categoria = CATEGORIAS_MOCK[i % CATEGORIAS_MOCK.length];
+        const anoNasc = 2010 + Math.floor(Math.random() * 8);
+        const mesNasc = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
+        const diaNasc = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
+        alunos.push({
+          id: alunoId,
+          nome: gerarNomeAleatorio(),
+          dataNascimento: `${anoNasc}-${mesNasc}-${diaNasc}`,
+          categoria,
         });
-        return;
+
+        const qtd = 5 + Math.floor(Math.random() * 11); // 5–15
+        const datasUsadas = new Set();
+        for (let j = 0; j < qtd; j++) {
+          let data;
+          let tentativas = 0;
+          do {
+            data = gerarDataAleatoria('2025-01-01', '2026-04-04');
+            tentativas++;
+          } while (datasUsadas.has(data) && tentativas < 50);
+          datasUsadas.add(data);
+          avaliacoes.push({
+            id: generateId(),
+            alunoId,
+            data,
+            tatico:  2 + Math.floor(Math.random() * 4),
+            tecnico: 2 + Math.floor(Math.random() * 4),
+            mental:  2 + Math.floor(Math.random() * 4),
+          });
+        }
       }
-
-      state.avaliacoes.push({
-        id: generateId(),
-        alunoId: alunoEmAvaliacao,
-        tecnico: parseInt(document.querySelector('input[name="tecnico"]:checked').value, 10),
-        tatico:  parseInt(document.querySelector('input[name="tatico"]:checked').value, 10),
-        mental:  parseInt(document.querySelector('input[name="mental"]:checked').value, 10),
-        data: new Date().toISOString(),
-      });
-
-      fecharModal();
-      renderAlunos();
-      showToast('Avaliação lançada com sucesso!');
-    });
-
-    document.getElementById('btnCancelarAvaliacao').addEventListener('click', fecharModal);
-
-    // Close modal on backdrop click (outside panel)
-    document.getElementById('modalAvaliacaoBackdrop').addEventListener('click', function (e) {
-      if (e.target === this) fecharModal();
-    });
-
-    // Close modal on Escape key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && alunoEmAvaliacao !== null) fecharModal();
-    });
+      return { alunos, avaliacoes };
+    }
 
     // ─── Boot ────────────────────────────────────────────────────────────────────
     initCategoriaDropdowns();
+
+    if (state.alunos.length === 0) {
+      const mock = gerarMockData();
+      state.alunos.push(...mock.alunos);
+      state.avaliacoes.push(...mock.avaliacoes);
+      saveState();
+    }
+
     renderAlunos();
   </script>
 
