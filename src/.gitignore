@@ -1,0 +1,42 @@
+# === .NET / C# ===
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.rsuser
+*.DotSettings.user
+publish/
+*.nupkg
+*.snupkg
+
+# === Frontend ===
+node_modules/
+dist/
+build/
+*.log
+
+# === Environment ===
+.env
+.env.*
+!.env.example
+
+# === OS ===
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+desktop.ini
+
+# === IDE ===
+.vscode/
+.idea/
+*.iml
+
+# === MongoDB ===
+*.bson
+
+# === Misc ===
+coverage/
