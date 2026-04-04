@@ -4,7 +4,17 @@
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude)",
       "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
-      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)"
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/create-new-feature.ps1\" \"Vamos criar a pagina mockada para validar essa funcionalidade, nessa feature o professor vai cadastrar o aluno, para isso ele vai preencher nome e data de nascimento e categoria \\(lista com as opções Sub 09, Sub 10, Sub 11, Sub 12, Sub 13 e Sub 14\\). Uma vez que o aluno é cadastrado ele será exibido em uma listagem que o professor poderá filtrar pela categoria e pelo nome do aluno. No aluno cadastrado ele pode lançar a avaliação, nessa avaliação ele pontua os aspectos Tecnico, Tatico e Mental. Ele pode receber as notas nas avaliações Excelente \\(5 pontos\\), Bom \\(4 pontos\\), Regular \\(3 pontos\\) e Precisa Melhorar \\(2 Pontos\\).\" -Json -ShortName \"student-register-eval\" \"Student Registration and Evaluation\")",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude)",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "Bash(powershell.exe -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(powershell -Command \".specify/scripts/powershell/create-new-feature.ps1 'agora vamos fazer alguns ajustes em students, na listagem vamos exibir o resultado das ultimas avaliações, coloque um icone para cada aspecto Tecnico, Tatico e Mental. Oculte a secao de cadastro de aluno, exiba quando o professor clicar em um botao de novo aluno.' -Json -ShortName 'students-eval-display' 'Students listing evaluation display and toggle form'\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/setup-plan.ps1 -Json\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/update-agent-context.ps1 -AgentType claude\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")"
     ]
   }
 }
