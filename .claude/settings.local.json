@@ -26,7 +26,8 @@
       "Bash(powershell -Command \"./.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude\")",
       "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
       "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
-      "Bash(git -C \"d:/Projetos/Nova pasta/imperial-soccer\" rev-parse --git-dir)"
+      "Bash(git -C \"d:/Projetos/Nova pasta/imperial-soccer\" rev-parse --git-dir)",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'Registro de presença dos alunos em treinos por categoria, com data do treino e navegação entre Alunos e Treino' -Json -ShortName 'attendance-tracking' 'Chamada de Treino'\")"
     ]
   }
 }

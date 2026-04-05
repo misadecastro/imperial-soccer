@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imperial Soccer — Chamada do Treino</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/imperial.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            imperial: {
+              green:         '#2a7a3d',
+              'green-mid':   '#16a34a',
+              'green-light': '#dcfce7',
+              red:           '#dc2626',
+              'red-light':   '#fee2e2',
+              bg:            '#f0f4f1',
+              card:          '#ffffff',
+              text:          '#111827',
+              'text-muted':  '#6b7280',
+              border:        '#e5e7eb',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-32">
+
+  <!-- Header -->
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center gap-3">
+    <svg class="w-8 h-8 text-white shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+      <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+      <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
+    </svg>
+    <div>
+      <div class="text-base font-bold text-white leading-tight">Chamada do Treino</div>
+      <div class="text-xs text-white/70">Registre a presença dos alunos</div>
+    </div>
+  </header>
+
+  <!-- Toast notification -->
+  <div
+    id="toast"
+    class="hidden fixed top-6 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none max-w-xs"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <!-- Main -->
+  <main class="flex-1 w-full max-w-2xl mx-auto">
+
+    <!-- Data do treino -->
+    <div class="mx-4 mt-4 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-4">
+      <label for="inputData" class="block text-sm font-medium text-imperial-text mb-2">
+        Data do treino
+      </label>
+      <input
+        type="date"
+        id="inputData"
+        class="w-full sm:w-64 px-4 py-2 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+      />
+      <p id="erroData" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
+    </div>
+
+    <!-- Abas de categoria -->
+    <div id="abas" class="flex overflow-x-auto scrollbar-none gap-2 px-4 py-3 bg-imperial-card border-b border-imperial-border mt-3 shadow-sm mx-4 rounded-xl" role="tablist" aria-label="Categorias">
+      <!-- Geradas via JS -->
+    </div>
+
+    <!-- Controles globais -->
+    <div id="controlesGlobais" class="hidden mx-4 mt-3 flex gap-2">
+      <button
+        id="btnTodosPresentes"
+        type="button"
+        class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-green-mid text-imperial-green-mid hover:bg-imperial-green-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-green-mid"
+      >
+        Todos Presentes
+      </button>
+      <button
+        id="btnTodosAusentes"
+        type="button"
+        class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-red text-imperial-red hover:bg-imperial-red-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-red"
+      >
+        Todos Ausentes
+      </button>
+    </div>
+
+    <!-- Painel de resumo -->
+    <div id="painelResumo" class="hidden mx-4 mt-3 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3">
+      <div class="flex items-center justify-between">
+        <span id="tituloCategoria" class="text-sm font-semibold text-imperial-text"></span>
+        <div class="flex gap-4">
+          <div class="text-center">
+            <div id="contPresentes" class="text-xl font-bold text-imperial-green-mid">0</div>
+            <div class="text-xs text-imperial-text-muted">Presentes</div>
+          </div>
+          <div class="text-center">
+            <div id="contFaltas" class="text-xl font-bold text-imperial-red">0</div>
+            <div class="text-xs text-imperial-text-muted">Faltas</div>
+          </div>
+          <div class="text-center">
+            <div id="contPendentes" class="text-xl font-bold text-imperial-text-muted">0</div>
+            <div class="text-xs text-imperial-text-muted">Pendentes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de alunos -->
+    <div id="listaAlunos" class="mx-4 mt-3 space-y-2" role="list" aria-live="polite"></div>
+
+    <!-- Histórico de chamadas anteriores -->
+    <section id="secaoHistorico" class="hidden mx-4 mt-6 mb-2">
+      <h2 class="text-xs font-semibold text-imperial-text-muted mb-2 uppercase tracking-wide">Chamadas Anteriores</h2>
+      <div id="listaHistorico" class="space-y-2"></div>
+    </section>
+
+  </main>
+
+  <!-- Botão Salvar (fixo acima da barra de navegação) -->
+  <div id="containerSalvar" class="hidden fixed bottom-16 left-0 right-0 px-4 py-3 bg-imperial-bg border-t border-imperial-border z-30">
+    <button
+      id="btnSalvar"
+      type="button"
+      class="w-full py-3 rounded-xl bg-imperial-green text-white font-semibold text-base shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 transition-all"
+    >
+      Salvar Presença
+    </button>
+  </div>
+
+  <!-- Menu de navegação inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-imperial-card border-t border-imperial-border flex h-16 z-40">
+    <a
+      href="students.html"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
+      aria-label="Alunos"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span class="text-xs font-medium">Alunos</span>
+    </a>
+    <a
+      href="training.html"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green font-semibold border-t-2 border-imperial-green"
+      aria-label="Treino"
+      aria-current="page"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <span class="text-xs font-medium">Treino</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    // ─── Constants ───────────────────────────────────────────────────────────────
+    const CATEGORIAS = ['Sub09', 'Sub10', 'Sub11', 'Sub12', 'Sub13', 'Sub14'];
+    const CATEGORIAS_LABELS = {
+      Sub09: 'Sub 09', Sub10: 'Sub 10', Sub11: 'Sub 11',
+      Sub12: 'Sub 12', Sub13: 'Sub 13', Sub14: 'Sub 14',
+    };
+    const AVATAR_COLORS = [
+      '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
+      '#06b6d4', '#eab308', '#ef4444', '#6366f1',
+    ];
+
+    // ─── State & sessionStorage ──────────────────────────────────────────────────
+    const STATE_KEY = 'imperialState';
+
+    function loadState() {
+      try {
+        const raw = sessionStorage.getItem(STATE_KEY);
+        if (!raw) return { alunos: [], avaliacoes: [], chamadas: [] };
+        const parsed = JSON.parse(raw);
+        if (!parsed.chamadas) parsed.chamadas = [];
+        return parsed;
+      } catch {
+        return { alunos: [], avaliacoes: [], chamadas: [] };
+      }
+    }
+
+    function saveState() {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
+
+    const state = loadState();
+
+    // ─── Utilities ───────────────────────────────────────────────────────────────
+    function generateId() {
+      return crypto.randomUUID();
+    }
+
+    function todayISO() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function formatDate(isoDate) {
+      if (!isoDate) return '';
+      const [year, month, day] = isoDate.split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getInitials(nome) {
+      const parts = nome.trim().split(/\s+/);
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = [
+        'fixed top-6 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none max-w-xs',
+        type === 'success' ? 'bg-imperial-green text-white' : 'bg-imperial-red text-white',
+      ].join(' ');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // ─── Domain logic ────────────────────────────────────────────────────────────
+    function findChamada(data, categoria) {
+      return state.chamadas.find(c => c.data === data && c.categoria === categoria) || null;
+    }
+
+    function criarChamada(data, categoria) {
+      const alunosDaCategoria = state.alunos.filter(a => a.categoria === categoria);
+      const registros = alunosDaCategoria.map(a => ({ alunoId: a.id, status: 'pendente' }));
+      return { id: generateId(), data, categoria, registros };
+    }
+
+    function getOrCreateChamada(data, categoria) {
+      return findChamada(data, categoria) || criarChamada(data, categoria);
+    }
+
+    function setStatus(chamada, alunoId, status) {
+      const registro = chamada.registros.find(r => r.alunoId === alunoId);
+      if (registro) registro.status = status;
+    }
+
+    function salvarChamada(chamada) {
+      const idx = state.chamadas.findIndex(c => c.data === chamada.data && c.categoria === chamada.categoria);
+      if (idx !== -1) {
+        state.chamadas[idx] = chamada;
+      } else {
+        state.chamadas.push(chamada);
+      }
+      saveState();
+      showToast('Presença salva com sucesso!');
+    }
+
+    function contarStatus(chamada) {
+      const presentes = chamada.registros.filter(r => r.status === 'presente').length;
+      const faltas    = chamada.registros.filter(r => r.status === 'falta').length;
+      const pendentes = chamada.registros.filter(r => r.status === 'pendente').length;
+      return { presentes, faltas, pendentes };
+    }
+
+    // ─── UI: contadores ───────────────────────────────────────────────────────────
+    function atualizarContadores(chamada) {
+      const { presentes, faltas, pendentes } = contarStatus(chamada);
+      document.getElementById('contPresentes').textContent = presentes;
+      document.getElementById('contFaltas').textContent    = faltas;
+      document.getElementById('contPendentes').textContent = pendentes;
+    }
+
+    // ─── UI: lista de alunos ─────────────────────────────────────────────────────
+    function renderLista(chamada) {
+      const container = document.getElementById('listaAlunos');
+      container.innerHTML = '';
+
+      if (chamada.registros.length === 0) {
+        container.innerHTML = `<div class="py-10 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado nesta categoria.</div>`;
+        document.getElementById('controlesGlobais').classList.add('hidden');
+        document.getElementById('containerSalvar').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('controlesGlobais').classList.remove('hidden');
+      document.getElementById('containerSalvar').classList.remove('hidden');
+
+      chamada.registros.forEach((reg, index) => {
+        const aluno = state.alunos.find(a => a.id === reg.alunoId);
+        if (!aluno) return;
+
+        const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
+        const initials = getInitials(aluno.nome);
+
+        const btnPresenteBase = 'btn-attendance px-3 py-1.5 rounded-lg text-xs font-medium border focus:outline-none focus:ring-1';
+        const btnPresenteAtivo = 'border-imperial-green-mid bg-imperial-green-light text-imperial-green-mid';
+        const btnFaltaAtivo    = 'border-imperial-red bg-imperial-red-light text-imperial-red';
+        const btnNeutro        = 'border-imperial-border bg-imperial-card text-imperial-text-muted';
+
+        const isPres = reg.status === 'presente';
+        const isFalt = reg.status === 'falta';
+
+        const card = document.createElement('div');
+        card.className = 'bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3 flex items-center gap-3';
+        card.setAttribute('role', 'listitem');
+
+        card.innerHTML = `
+          <div class="avatar shrink-0" style="background-color: ${avatarColor};">${escapeHtml(initials)}</div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-imperial-text text-sm truncate">${escapeHtml(aluno.nome)}</div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button
+              type="button"
+              class="${btnPresenteBase} ${isPres ? btnPresenteAtivo : btnNeutro}"
+              data-aluno-id="${aluno.id}"
+              data-action="presente"
+              aria-pressed="${isPres}"
+            >Presente</button>
+            <button
+              type="button"
+              class="${btnPresenteBase} ${isFalt ? btnFaltaAtivo : btnNeutro}"
+              data-aluno-id="${aluno.id}"
+              data-action="falta"
+              aria-pressed="${isFalt}"
+            >Falta</button>
+          </div>
+        `;
+
+        // Attach button listeners
+        card.querySelectorAll('button[data-action]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const aId = btn.dataset.alunoId;
+            const action = btn.dataset.action;
+            setStatus(chamada, aId, action);
+            atualizarContadores(chamada);
+            renderLista(chamada);
+          });
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    // ─── UI: histórico ────────────────────────────────────────────────────────────
+    function renderHistorico(categoria, dataAtual) {
+      const secao = document.getElementById('secaoHistorico');
+      const lista = document.getElementById('listaHistorico');
+
+      const historico = state.chamadas
+        .filter(c => c.categoria === categoria && c.data !== dataAtual)
+        .sort((a, b) => b.data.localeCompare(a.data));
+
+      if (historico.length === 0) {
+        secao.classList.add('hidden');
+        return;
+      }
+
+      secao.classList.remove('hidden');
+      lista.innerHTML = historico.map(c => {
+        const { presentes, faltas, pendentes } = contarStatus(c);
+        const total = c.registros.length;
+        return `
+          <div class="bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3 flex items-center justify-between">
+            <div>
+              <div class="text-sm font-medium text-imperial-text">${formatDate(c.data)}</div>
+              <div class="text-xs text-imperial-text-muted mt-0.5">${total} aluno${total !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="flex gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-green-light text-imperial-green-mid border border-imperial-green-mid">
+                ${presentes} pres.
+              </span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-red-light text-imperial-red border border-imperial-red">
+                ${faltas} falt.
+              </span>
+              ${pendentes > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-bg text-imperial-text-muted border border-imperial-border">${pendentes} pend.</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─── Core render ─────────────────────────────────────────────────────────────
+    let chamadaAtual = null;
+    let categoriaAtiva = null;
+
+    function renderChamada() {
+      const data = document.getElementById('inputData').value;
+      const erroData = document.getElementById('erroData');
+
+      // Validate date
+      erroData.classList.add('hidden');
+      if (!data) {
+        ocultarConteudo();
+        return;
+      }
+      if (data > todayISO()) {
+        erroData.textContent = 'A data do treino não pode ser no futuro.';
+        erroData.classList.remove('hidden');
+        ocultarConteudo();
+        return;
+      }
+
+      if (!categoriaAtiva) {
+        ocultarConteudo();
+        return;
+      }
+
+      chamadaAtual = getOrCreateChamada(data, categoriaAtiva);
+
+      // Update panel title
+      const alunosDaCategoria = state.alunos.filter(a => a.categoria === categoriaAtiva);
+      document.getElementById('tituloCategoria').textContent =
+        `${CATEGORIAS_LABELS[categoriaAtiva]} — ${chamadaAtual.registros.length} aluno${chamadaAtual.registros.length !== 1 ? 's' : ''}`;
+
+      document.getElementById('painelResumo').classList.remove('hidden');
+      atualizarContadores(chamadaAtual);
+      renderLista(chamadaAtual);
+      renderHistorico(categoriaAtiva, data);
+    }
+
+    function ocultarConteudo() {
+      document.getElementById('painelResumo').classList.add('hidden');
+      document.getElementById('controlesGlobais').classList.add('hidden');
+      document.getElementById('containerSalvar').classList.add('hidden');
+      document.getElementById('listaAlunos').innerHTML = '';
+      document.getElementById('secaoHistorico').classList.add('hidden');
+      chamadaAtual = null;
+    }
+
+    // ─── Build category tabs ──────────────────────────────────────────────────────
+    function initAbas() {
+      const container = document.getElementById('abas');
+      CATEGORIAS.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tab-btn shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border border-imperial-border bg-imperial-bg text-imperial-text-muted focus:outline-none focus:ring-2 focus:ring-imperial-green btn-attendance';
+        btn.textContent = CATEGORIAS_LABELS[cat];
+        btn.dataset.categoria = cat;
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('aria-selected', 'false');
+
+        btn.addEventListener('click', () => {
+          // Deactivate all
+          container.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          // Activate clicked
+          btn.classList.add('tab-active');
+          btn.setAttribute('aria-selected', 'true');
+          categoriaAtiva = cat;
+          renderChamada();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    // ─── "Todos presentes" / "Todos ausentes" ────────────────────────────────────
+    document.getElementById('btnTodosPresentes').addEventListener('click', () => {
+      if (!chamadaAtual) return;
+      chamadaAtual.registros.forEach(r => { r.status = 'presente'; });
+      atualizarContadores(chamadaAtual);
+      renderLista(chamadaAtual);
+    });
+
+    document.getElementById('btnTodosAusentes').addEventListener('click', () => {
+      if (!chamadaAtual) return;
+      chamadaAtual.registros.forEach(r => { r.status = 'falta'; });
+      atualizarContadores(chamadaAtual);
+      renderLista(chamadaAtual);
+    });
+
+    // ─── Salvar ───────────────────────────────────────────────────────────────────
+    document.getElementById('btnSalvar').addEventListener('click', () => {
+      if (!chamadaAtual) return;
+      salvarChamada(chamadaAtual);
+      // Refresh histórico after save
+      renderHistorico(categoriaAtiva, chamadaAtual.data);
+    });
+
+    // ─── Date input listener ──────────────────────────────────────────────────────
+    document.getElementById('inputData').addEventListener('change', renderChamada);
+
+    // ─── Boot ─────────────────────────────────────────────────────────────────────
+    // Set max date to today
+    document.getElementById('inputData').max = todayISO();
+    // Default to today
+    document.getElementById('inputData').value = todayISO();
+
+    initAbas();
+
+    // Auto-select first category
+    const firstTab = document.querySelector('.tab-btn');
+    if (firstTab) firstTab.click();
+  </script>
+
+</body>
+</html>
