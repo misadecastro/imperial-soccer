@@ -5,17 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Imperial Soccer — Escola de Futebol</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/imperial.css" />
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             imperial: {
-              green: '#16a34a',
-              'green-dark': '#15803d',
-              'green-light': '#4ade80',
-              dark: '#0f172a',
-              'dark-2': '#1e293b',
+              green:         '#2a7a3d',
+              'green-mid':   '#16a34a',
+              'green-light': '#dcfce7',
+              red:           '#dc2626',
+              'red-light':   '#fee2e2',
+              bg:            '#f0f4f1',
+              card:          '#ffffff',
+              text:          '#111827',
+              'text-muted':  '#6b7280',
+              border:        '#e5e7eb',
             }
           },
           fontFamily: {
@@ -26,72 +32,82 @@
     }
   </script>
 </head>
-<body class="bg-imperial-dark text-white min-h-screen flex flex-col">
+<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="w-full px-6 py-5 flex items-center justify-between border-b border-white/10">
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <!-- Ícone de bola (SVG inline) -->
-      <svg class="w-9 h-9 text-imperial-green" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
         <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
         <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
       </svg>
-      <span class="text-xl font-bold tracking-wide text-white">Imperial <span class="text-imperial-green">Soccer</span></span>
+      <div>
+        <div class="text-lg font-bold text-white leading-tight">Imperial Soccer</div>
+        <div class="text-xs text-white/70">Escola de Futebol</div>
+      </div>
     </div>
 
     <a
       href="pages/login.html"
-      class="text-sm font-medium text-imperial-green-light hover:text-white transition-colors"
+      class="text-sm font-semibold text-white/90 hover:text-white transition-colors"
       aria-label="Acessar o sistema"
     >
       Entrar →
     </a>
   </header>
 
-  <!-- Hero -->
-  <main class="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+  <!-- Main -->
+  <main class="flex-1 flex flex-col items-center justify-center px-4 py-12 text-center">
 
-    <!-- Badge -->
-    <span class="inline-block mb-6 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-imperial-green/20 text-imperial-green-light border border-imperial-green/30">
-      Escola de Futebol
-    </span>
+    <div class="w-full max-w-sm bg-imperial-card rounded-2xl shadow-lg p-8 border border-imperial-border">
 
-    <!-- Título principal -->
-    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-      <span class="text-white">Imperial</span>
-      <br class="sm:hidden" />
-      <span class="text-imperial-green"> Soccer</span>
-    </h1>
+      <!-- Logo -->
+      <div class="flex justify-center mb-5">
+        <svg class="w-14 h-14 text-imperial-green" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+          <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+          <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
+        </svg>
+      </div>
 
-    <!-- Tagline -->
-    <p class="text-lg sm:text-xl md:text-2xl text-slate-300 font-light mb-4 max-w-xl">
-      Formando atletas com técnica, disciplina e paixão pelo futebol.
-    </p>
+      <!-- Título -->
+      <h1 class="text-2xl font-bold text-imperial-text mb-2">
+        Imperial <span class="text-imperial-green">Soccer</span>
+      </h1>
 
-    <!-- Descrição -->
-    <p class="text-sm sm:text-base text-slate-400 mb-10 max-w-lg leading-relaxed">
-      Nossa plataforma de gestão permite que os professores acompanhem o desenvolvimento
-      de cada aluno — avaliações, frequência, minutagem em jogos e muito mais.
-    </p>
+      <!-- Tagline -->
+      <p class="text-sm text-imperial-text-muted mb-2">
+        Formando atletas com técnica, disciplina e paixão pelo futebol.
+      </p>
 
-    <!-- CTA -->
-    <a
-      href="pages/login.html"
-      class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-imperial-green hover:bg-imperial-green-dark text-white font-semibold text-base sm:text-lg transition-all duration-200 shadow-lg shadow-imperial-green/20 hover:shadow-imperial-green/40 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 focus:ring-offset-imperial-dark"
-      aria-label="Entrar no sistema de gestão"
-    >
-      Entrar no Sistema
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-      </svg>
-    </a>
+      <!-- Descrição -->
+      <p class="text-xs text-imperial-text-muted mb-8 leading-relaxed">
+        Plataforma de gestão para acompanhar o desenvolvimento de cada aluno —
+        avaliações, frequência e minutagem em jogos.
+      </p>
+
+      <!-- CTA -->
+      <a
+        href="pages/login.html"
+        class="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold text-sm transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+        aria-label="Entrar no sistema de gestão"
+      >
+        Entrar no Sistema
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+
+    </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="w-full px-6 py-5 text-center text-xs text-slate-600 border-t border-white/5">
+  <footer class="w-full px-6 py-4 text-center text-xs text-imperial-text-muted border-t border-imperial-border">
     © 2026 Imperial Soccer — Todos os direitos reservados
   </footer>
 

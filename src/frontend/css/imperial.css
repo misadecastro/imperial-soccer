@@ -1,0 +1,57 @@
+/* ──────────────────────────────────────────────────────────────
+   Imperial Soccer — Design System
+   Complementa o Tailwind CDN com estilos não expressáveis via classes inline.
+────────────────────────────────────────────────────────────── */
+
+/* Avatar color palette — 8 cores, rotação por index % 8 */
+:root {
+  --avatar-0: #16a34a;
+  --avatar-1: #f97316;
+  --avatar-2: #ec4899;
+  --avatar-3: #8b5cf6;
+  --avatar-4: #06b6d4;
+  --avatar-5: #eab308;
+  --avatar-6: #ef4444;
+  --avatar-7: #6366f1;
+}
+
+/* Esconder scrollbar em containers de abas horizontais */
+.scrollbar-none {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge legado */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari */
+}
+
+/* Transição suave para botões de presença/avaliação */
+.btn-attendance {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Avatar circular genérico */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Aba de categoria — estado ativo aplicado por JS */
+.tab-btn.tab-active {
+  background-color: #2a7a3d;
+  color: #ffffff;
+  border-color: #2a7a3d;
+}
+
+/* Focus ring consistente para acessibilidade */
+.focus-ring:focus-visible {
+  outline: 2px solid #2a7a3d;
+  outline-offset: 2px;
+}

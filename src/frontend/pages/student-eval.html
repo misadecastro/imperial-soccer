@@ -6,17 +6,23 @@
   <title>Imperial Soccer — Avaliação do Aluno</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../css/imperial.css" />
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             imperial: {
-              green: '#16a34a',
-              'green-dark': '#15803d',
-              'green-light': '#4ade80',
-              dark: '#0f172a',
-              'dark-2': '#1e293b',
+              green:         '#2a7a3d',
+              'green-mid':   '#16a34a',
+              'green-light': '#dcfce7',
+              red:           '#dc2626',
+              'red-light':   '#fee2e2',
+              bg:            '#f0f4f1',
+              card:          '#ffffff',
+              text:          '#111827',
+              'text-muted':  '#6b7280',
+              border:        '#e5e7eb',
             }
           },
           fontFamily: {
@@ -27,23 +33,26 @@
     }
   </script>
 </head>
-<body class="bg-imperial-dark text-white min-h-screen flex flex-col">
+<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="w-full px-6 py-5 flex items-center justify-between border-b border-white/10">
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <svg class="w-9 h-9 text-imperial-green" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
         <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
         <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
       </svg>
-      <span class="text-xl font-bold tracking-wide text-white">Imperial <span class="text-imperial-green">Soccer</span></span>
+      <div>
+        <div class="text-base font-bold text-white leading-tight">Imperial Soccer</div>
+        <div class="text-xs text-white/70">Avaliação do Aluno</div>
+      </div>
     </div>
     <button
       type="button"
       id="btnVoltar"
-      class="inline-flex items-center gap-1 text-sm font-medium text-imperial-green-light hover:text-white transition-colors"
+      class="inline-flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
@@ -61,19 +70,19 @@
   ></div>
 
   <!-- Main -->
-  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+  <main class="flex-1 w-full max-w-2xl mx-auto px-4 py-6 space-y-6">
 
     <!-- Student info + Nova Avaliação button -->
     <section aria-labelledby="tituloAluno">
       <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 id="tituloAluno" class="text-2xl font-bold text-white"></h1>
-          <p id="subtituloAluno" class="text-sm text-slate-400 mt-1"></p>
+          <h1 id="tituloAluno" class="text-xl font-bold text-imperial-text"></h1>
+          <p id="subtituloAluno" class="text-sm text-imperial-text-muted mt-1"></p>
         </div>
         <button
           type="button"
           id="btnNovaAvaliacao"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:bg-imperial-green-dark text-white text-sm font-semibold transition-all duration-200 shadow-lg shadow-imperial-green/20 hover:shadow-imperial-green/40 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 focus:ring-offset-imperial-dark shrink-0"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 shrink-0"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -85,40 +94,40 @@
 
     <!-- New evaluation form (hidden by default) -->
     <section id="secaoNovaAvaliacao" aria-labelledby="tituloNovaAvaliacao" class="hidden">
-      <h2 id="tituloNovaAvaliacao" class="text-xl font-bold text-white mb-4">Nova Avaliação</h2>
-      <form id="formNovaAvaliacao" class="bg-imperial-dark-2 rounded-2xl p-6 space-y-5 border border-white/5" novalidate>
+      <h2 id="tituloNovaAvaliacao" class="text-lg font-bold text-imperial-text mb-4">Nova Avaliação</h2>
+      <form id="formNovaAvaliacao" class="bg-imperial-card rounded-2xl p-5 space-y-5 border border-imperial-border shadow-sm" novalidate>
 
         <!-- Data -->
         <div>
-          <label for="inputDataAvaliacao" class="block text-sm font-medium text-slate-300 mb-1">
-            Data de Realização <span class="text-red-400">*</span>
+          <label for="inputDataAvaliacao" class="block text-sm font-medium text-imperial-text mb-1">
+            Data de Realização <span class="text-imperial-red">*</span>
           </label>
           <input
             type="date"
             id="inputDataAvaliacao"
-            class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-dark border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+            class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
           />
-          <p id="erroDataAvaliacao" class="hidden mt-1 text-xs text-red-400" role="alert"></p>
+          <p id="erroDataAvaliacao" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
         </div>
 
         <!-- Tático -->
         <fieldset>
-          <legend class="text-sm font-semibold text-slate-300 mb-2">Tático</legend>
-          <p id="erroTatico" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Tático</legend>
+          <p id="erroTatico" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
           <div id="grupoTatico" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
         </fieldset>
 
         <!-- Técnico -->
         <fieldset>
-          <legend class="text-sm font-semibold text-slate-300 mb-2">Técnico</legend>
-          <p id="erroTecnico" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Técnico</legend>
+          <p id="erroTecnico" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
           <div id="grupoTecnico" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
         </fieldset>
 
         <!-- Mental -->
         <fieldset>
-          <legend class="text-sm font-semibold text-slate-300 mb-2">Mental</legend>
-          <p id="erroMental" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Mental</legend>
+          <p id="erroMental" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
           <div id="grupoMental" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
         </fieldset>
 
@@ -126,14 +135,14 @@
         <div class="pt-1 flex flex-col sm:flex-row gap-3">
           <button
             type="submit"
-            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:bg-imperial-green-dark text-white font-semibold transition-all duration-200 shadow-lg shadow-imperial-green/20 hover:shadow-imperial-green/40 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 focus:ring-offset-imperial-dark-2"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
           >
             Salvar Avaliação
           </button>
           <button
             type="button"
             id="btnCancelarNovaAvaliacao"
-            class="w-full sm:w-auto px-8 py-3 rounded-xl border border-white/20 text-slate-300 hover:text-white hover:border-white/40 font-medium transition-all"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl border border-imperial-border text-imperial-text-muted hover:text-imperial-text font-medium transition-all"
           >
             Cancelar
           </button>
@@ -144,9 +153,9 @@
 
     <!-- Chart section -->
     <section aria-labelledby="tituloGrafico">
-      <h2 id="tituloGrafico" class="text-xl font-bold text-white mb-4">Evolução do Aluno</h2>
-      <div class="bg-imperial-dark-2 rounded-2xl p-4 border border-white/5">
-        <div id="graficoPlaceholder" class="py-10 text-center text-slate-500 text-sm">
+      <h2 id="tituloGrafico" class="text-lg font-bold text-imperial-text mb-4">Evolução do Aluno</h2>
+      <div class="bg-imperial-card rounded-2xl p-4 border border-imperial-border shadow-sm">
+        <div id="graficoPlaceholder" class="py-10 text-center text-imperial-text-muted text-sm">
           Registre avaliações para visualizar o gráfico de evolução.
         </div>
         <canvas id="graficoEvolucao" class="w-full hidden"></canvas>
@@ -155,26 +164,26 @@
 
     <!-- Evaluation list -->
     <section aria-labelledby="tituloHistorico">
-      <h2 id="tituloHistorico" class="text-xl font-bold text-white mb-4">Histórico de Avaliações</h2>
-      <div id="listaAvaliacoes" class="space-y-3" role="list" aria-live="polite"></div>
+      <h2 id="tituloHistorico" class="text-lg font-bold text-imperial-text mb-4">Histórico de Avaliações</h2>
+      <div id="listaAvaliacoes" class="space-y-2" role="list" aria-live="polite"></div>
 
       <!-- Pagination controls -->
-      <div id="controlesPaginacao" class="hidden items-center justify-between mt-4 pt-4 border-t border-white/5">
+      <div id="controlesPaginacao" class="hidden items-center justify-between mt-4 pt-4 border-t border-imperial-border">
         <button
           type="button"
           id="btnPaginaAnterior"
-          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-white/20 text-slate-300 hover:text-white hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
           Anterior
         </button>
-        <span id="indicadorPagina" class="text-sm text-slate-400"></span>
+        <span id="indicadorPagina" class="text-sm text-imperial-text-muted"></span>
         <button
           type="button"
           id="btnProximaPagina"
-          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-white/20 text-slate-300 hover:text-white hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           Próxima
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -188,7 +197,7 @@
         <button
           type="button"
           id="btnVoltarRodape"
-          class="inline-flex items-center gap-1 text-sm font-medium text-imperial-green-light hover:text-white transition-colors"
+          class="inline-flex items-center gap-1 text-sm font-medium text-imperial-green hover:opacity-80 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
@@ -201,7 +210,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="w-full px-6 py-5 text-center text-xs text-slate-600 border-t border-white/5">
+  <footer class="w-full px-6 py-4 text-center text-xs text-imperial-text-muted border-t border-imperial-border">
     © 2026 Imperial Soccer — Todos os direitos reservados
   </footer>
 
@@ -304,7 +313,7 @@
       toast.textContent = message;
       toast.className = [
         'fixed top-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none',
-        type === 'success' ? 'bg-imperial-green text-white' : 'bg-red-700 text-white',
+        type === 'success' ? 'bg-imperial-green text-white' : 'bg-imperial-red text-white',
       ].join(' ');
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 3000);
@@ -325,8 +334,8 @@
     }
 
     // ─── Chart ───────────────────────────────────────────────────────────────────
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+    Chart.defaults.color = '#6b7280';
+    Chart.defaults.borderColor = '#e5e7eb';
 
     function renderGrafico(todasAvaliacoes) {
       // Chart always uses all evaluations (ASC order for timeline readability)
@@ -357,8 +366,8 @@
             {
               label: 'Tático',
               data: avaliacoes.map(av => av.tatico),
-              borderColor: '#facc15',
-              backgroundColor: 'rgba(250,204,21,0.1)',
+              borderColor: '#eab308',
+              backgroundColor: 'rgba(234,179,8,0.08)',
               tension: 0.3,
               pointRadius: 5,
               pointHoverRadius: 7,
@@ -367,8 +376,8 @@
             {
               label: 'Técnico',
               data: avaliacoes.map(av => av.tecnico),
-              borderColor: '#4ade80',
-              backgroundColor: 'rgba(74,222,128,0.1)',
+              borderColor: '#2a7a3d',
+              backgroundColor: 'rgba(42,122,61,0.08)',
               tension: 0.3,
               pointRadius: 5,
               pointHoverRadius: 7,
@@ -377,8 +386,8 @@
             {
               label: 'Mental',
               data: avaliacoes.map(av => av.mental),
-              borderColor: '#60a5fa',
-              backgroundColor: 'rgba(96,165,250,0.1)',
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.08)',
               tension: 0.3,
               pointRadius: 5,
               pointHoverRadius: 7,
@@ -393,14 +402,14 @@
           },
           scales: {
             x: {
-              ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(255,255,255,0.07)' },
+              ticks: { color: '#6b7280' },
+              grid: { color: '#e5e7eb' },
             },
             y: {
               min: 2,
               max: 5,
-              ticks: { stepSize: 1, color: '#94a3b8' },
-              grid: { color: 'rgba(255,255,255,0.07)' },
+              ticks: { stepSize: 1, color: '#6b7280' },
+              grid: { color: '#e5e7eb' },
             },
           },
         },
@@ -416,7 +425,7 @@
     }
 
     function renderChip(aspecto, nota) {
-      return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-imperial-green/10 text-imperial-green-light border-imperial-green/30">
+      return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-imperial-green-light text-imperial-green border-imperial-green">
         ${ICONS[aspecto]}
         <span>${ASPECT_LABELS[aspecto]}</span>
         <span class="font-bold">${nota}</span>
@@ -433,10 +442,10 @@
         const label = document.createElement('label');
         label.htmlFor = inputId;
         label.className = [
-          'flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border border-white/10',
-          'cursor-pointer text-center text-xs text-slate-300 transition-all select-none',
-          'hover:border-imperial-green',
-          'has-[:checked]:border-imperial-green has-[:checked]:bg-imperial-green/10 has-[:checked]:text-imperial-green-light',
+          'flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border border-imperial-border',
+          'cursor-pointer text-center text-xs text-imperial-text-muted transition-all select-none',
+          'hover:border-imperial-green hover:text-imperial-green',
+          'has-[:checked]:border-imperial-green has-[:checked]:bg-imperial-green-light has-[:checked]:text-imperial-green',
         ].join(' ');
         label.innerHTML = `
           <input type="radio" id="${inputId}" name="${aspecto}" value="${nota.valor}" class="sr-only" />
@@ -455,7 +464,7 @@
 
       if (todasAvaliacoes.length === 0) {
         container.innerHTML = `
-          <div class="py-14 text-center text-slate-500 text-sm">Nenhuma avaliação registrada ainda.</div>
+          <div class="py-14 text-center text-imperial-text-muted text-sm">Nenhuma avaliação registrada ainda.</div>
         `;
         controles.classList.add('hidden');
         controles.classList.remove('flex');
@@ -470,11 +479,11 @@
       const pagina = todasAvaliacoes.slice(paginaAtual * PAGE_SIZE, (paginaAtual + 1) * PAGE_SIZE);
 
       container.innerHTML = pagina.map(av => `
-        <div class="bg-imperial-dark-2 rounded-xl px-5 py-4 border border-white/5"
+        <div class="bg-imperial-card rounded-xl px-5 py-4 border border-imperial-border shadow-sm"
              role="listitem" data-av-id="${escapeHtml(av.id)}">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div class="space-y-2">
-              <div class="text-sm font-semibold text-slate-200">${formatDate(av.data)}</div>
+              <div class="text-sm font-semibold text-imperial-text">${formatDate(av.data)}</div>
               <div class="flex items-center gap-1.5 flex-wrap">
                 ${renderChip('tatico', av.tatico)}
                 ${renderChip('tecnico', av.tecnico)}
@@ -484,13 +493,13 @@
             <div class="flex gap-2 shrink-0">
               <button
                 type="button"
-                class="btn-editar px-3 py-1.5 rounded-lg text-xs font-medium border border-white/20 text-slate-300 hover:text-white hover:border-white/40 transition-all"
+                class="btn-editar px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted transition-all"
                 data-av-id="${escapeHtml(av.id)}"
                 aria-label="Editar avaliação de ${formatDate(av.data)}"
               >Editar</button>
               <button
                 type="button"
-                class="btn-excluir px-3 py-1.5 rounded-lg text-xs font-medium border border-red-800/40 text-red-400 hover:bg-red-900/30 hover:border-red-700/60 transition-all"
+                class="btn-excluir px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-red/30 text-imperial-red hover:bg-imperial-red-light transition-all"
                 data-av-id="${escapeHtml(av.id)}"
                 aria-label="Excluir avaliação de ${formatDate(av.data)}"
               >Excluir</button>
@@ -534,34 +543,34 @@
       item.innerHTML = `
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-300 mb-1">Data de Realização</label>
+            <label class="block text-sm font-medium text-imperial-text mb-1">Data de Realização</label>
             <input
               type="date"
               id="editData_${safeId}"
               value="${av.data.substring(0, 10)}"
               max="${todayISO()}"
-              class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-dark border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+              class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
             />
-            <p id="editErroData_${safeId}" class="hidden mt-1 text-xs text-red-400" role="alert"></p>
+            <p id="editErroData_${safeId}" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
           </div>
           <fieldset>
-            <legend class="text-sm font-semibold text-slate-300 mb-2">Tático</legend>
-            <p id="editErroTatico_${safeId}" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+            <legend class="text-sm font-semibold text-imperial-text mb-2">Tático</legend>
+            <p id="editErroTatico_${safeId}" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
             <div id="editGrupoTatico_${safeId}" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
           </fieldset>
           <fieldset>
-            <legend class="text-sm font-semibold text-slate-300 mb-2">Técnico</legend>
-            <p id="editErroTecnico_${safeId}" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+            <legend class="text-sm font-semibold text-imperial-text mb-2">Técnico</legend>
+            <p id="editErroTecnico_${safeId}" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
             <div id="editGrupoTecnico_${safeId}" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
           </fieldset>
           <fieldset>
-            <legend class="text-sm font-semibold text-slate-300 mb-2">Mental</legend>
-            <p id="editErroMental_${safeId}" class="hidden mb-2 text-xs text-red-400" role="alert"></p>
+            <legend class="text-sm font-semibold text-imperial-text mb-2">Mental</legend>
+            <p id="editErroMental_${safeId}" class="hidden mb-2 text-xs text-imperial-red" role="alert"></p>
             <div id="editGrupoMental_${safeId}" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
           </fieldset>
           <div class="flex gap-3 justify-end pt-1">
-            <button type="button" class="btn-cancelar-edicao px-4 py-2 rounded-lg border border-white/20 text-slate-300 text-sm font-medium hover:text-white hover:border-white/40 transition-all">Cancelar</button>
-            <button type="button" class="btn-salvar-edicao px-4 py-2 rounded-lg bg-imperial-green hover:bg-imperial-green-dark text-white text-sm font-semibold transition-all shadow-lg shadow-imperial-green/20">Salvar</button>
+            <button type="button" class="btn-cancelar-edicao px-4 py-2 rounded-lg border border-imperial-border text-imperial-text-muted text-sm font-medium hover:text-imperial-text transition-all">Cancelar</button>
+            <button type="button" class="btn-salvar-edicao px-4 py-2 rounded-lg bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all shadow-md">Salvar</button>
           </div>
         </div>
       `;
