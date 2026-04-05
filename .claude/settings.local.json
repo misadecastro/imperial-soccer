@@ -20,7 +20,14 @@
       "Bash(powershell -File \".specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude)",
       "Bash(powershell -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
       "Bash(powershell -File \".specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
-      "Bash(powershell -File \".specify/scripts/powershell/create-new-feature.ps1\" \"Melhorias de layout em student-eval.html: ocultar painel de cadastro de avaliacao exibindo apenas ao clicar em Nova Avaliacao, ordenar avaliacoes por mais recente primeiro com paginacao de 10 em 10, botao Voltar no final da lista, dados mocados de 40 alunos com avaliacoes de janeiro 2025 a abril 2026, e implementar fluxo de acesso onde ao clicar em login vai para students.html\" -Json -ShortName \"ui-improvements-mock-data\" \"UI Improvements and Mock Data\")"
+      "Bash(powershell -File \".specify/scripts/powershell/create-new-feature.ps1\" \"Melhorias de layout em student-eval.html: ocultar painel de cadastro de avaliacao exibindo apenas ao clicar em Nova Avaliacao, ordenar avaliacoes por mais recente primeiro com paginacao de 10 em 10, botao Voltar no final da lista, dados mocados de 40 alunos com avaliacoes de janeiro 2025 a abril 2026, e implementar fluxo de acesso onde ao clicar em login vai para students.html\" -Json -ShortName \"ui-improvements-mock-data\" \"UI Improvements and Mock Data\")",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'vamos fazer um re design da aplicação, para isso, vamos usar como exemplo o css que está na pasta Novo-Design e a imagem de referencia Pagina-Exemplo.png' -Json -ShortName 'app-redesign' 'Redesign da Aplicação'\")",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/setup-plan.ps1 -Json\")",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude\")",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
+      "Bash(git -C \"d:/Projetos/Nova pasta/imperial-soccer\" rev-parse --git-dir)",
+      "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'Registro de presença dos alunos em treinos por categoria, com data do treino e navegação entre Alunos e Treino' -Json -ShortName 'attendance-tracking' 'Chamada de Treino'\")"
     ]
   }
 }
