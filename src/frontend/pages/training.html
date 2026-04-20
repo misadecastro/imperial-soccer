@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Imperial Soccer — Chamada do Treino</title>
+  <title>Imperial Soccer — Treino</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../css/imperial.css" />
   <script>
@@ -40,8 +40,8 @@
       <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
     </svg>
     <div>
-      <div class="text-base font-bold text-white leading-tight">Chamada do Treino</div>
-      <div class="text-xs text-white/70">Registre a presença dos alunos</div>
+      <div class="text-base font-bold text-white leading-tight">Treino</div>
+      <div class="text-xs text-white/70">Chamada e especificações do treino</div>
     </div>
   </header>
 
@@ -74,52 +74,93 @@
       <!-- Geradas via JS -->
     </div>
 
-    <!-- Controles globais -->
-    <div id="controlesGlobais" class="hidden mx-4 mt-3 flex gap-2">
-      <button
-        id="btnTodosPresentes"
-        type="button"
-        class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-green-mid text-imperial-green-mid hover:bg-imperial-green-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-green-mid"
+    <!-- ── Chamada (Accordion) ──────────────────────────────────────────────── -->
+    <div id="chamadaContainer" class="hidden mx-4 mt-3">
+      <!-- Header clicável -->
+      <div
+        id="chamadaHeader"
+        class="bg-imperial-card rounded-xl border border-imperial-border px-4 py-3 flex items-center justify-between cursor-pointer select-none shadow-sm"
+        role="button"
+        aria-expanded="true"
+        aria-controls="chamadaConteudo"
       >
-        Todos Presentes
-      </button>
-      <button
-        id="btnTodosAusentes"
-        type="button"
-        class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-red text-imperial-red hover:bg-imperial-red-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-red"
-      >
-        Todos Ausentes
-      </button>
-    </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-imperial-text">Chamada</span>
+          <span id="chamadaResumo" class="text-xs text-imperial-text-muted"></span>
+        </div>
+        <svg id="chamadaChevron" class="w-4 h-4 text-imperial-text-muted transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
 
-    <!-- Painel de resumo -->
-    <div id="painelResumo" class="hidden mx-4 mt-3 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3">
-      <div class="flex items-center justify-between">
-        <span id="tituloCategoria" class="text-sm font-semibold text-imperial-text"></span>
-        <div class="flex gap-4">
-          <div class="text-center">
-            <div id="contPresentes" class="text-xl font-bold text-imperial-green-mid">0</div>
-            <div class="text-xs text-imperial-text-muted">Presentes</div>
-          </div>
-          <div class="text-center">
-            <div id="contFaltas" class="text-xl font-bold text-imperial-red">0</div>
-            <div class="text-xs text-imperial-text-muted">Faltas</div>
-          </div>
-          <div class="text-center">
-            <div id="contPendentes" class="text-xl font-bold text-imperial-text-muted">0</div>
-            <div class="text-xs text-imperial-text-muted">Pendentes</div>
+      <!-- Conteúdo recolhível -->
+      <div id="chamadaConteudo">
+        <!-- Controles globais -->
+        <div id="controlesGlobais" class="hidden mt-2 flex gap-2">
+          <button
+            id="btnTodosPresentes"
+            type="button"
+            class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-green-mid text-imperial-green-mid hover:bg-imperial-green-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-green-mid"
+          >
+            Todos Presentes
+          </button>
+          <button
+            id="btnTodosAusentes"
+            type="button"
+            class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-red text-imperial-red hover:bg-imperial-red-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-red"
+          >
+            Todos Ausentes
+          </button>
+        </div>
+
+        <!-- Painel de resumo -->
+        <div id="painelResumo" class="hidden mt-2 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3">
+          <div class="flex items-center justify-between">
+            <span id="tituloCategoria" class="text-sm font-semibold text-imperial-text"></span>
+            <div class="flex gap-4">
+              <div class="text-center">
+                <div id="contPresentes" class="text-xl font-bold text-imperial-green-mid">0</div>
+                <div class="text-xs text-imperial-text-muted">Presentes</div>
+              </div>
+              <div class="text-center">
+                <div id="contFaltas" class="text-xl font-bold text-imperial-red">0</div>
+                <div class="text-xs text-imperial-text-muted">Faltas</div>
+              </div>
+              <div class="text-center">
+                <div id="contPendentes" class="text-xl font-bold text-imperial-text-muted">0</div>
+                <div class="text-xs text-imperial-text-muted">Pendentes</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- Lista de alunos -->
+        <div id="listaAlunos" class="mt-2 space-y-2" role="list" aria-live="polite"></div>
+
+        <!-- Histórico de chamadas anteriores -->
+        <section id="secaoHistorico" class="hidden mt-4 mb-2">
+          <h2 class="text-xs font-semibold text-imperial-text-muted mb-2 uppercase tracking-wide">Chamadas Anteriores</h2>
+          <div id="listaHistorico" class="space-y-2"></div>
+        </section>
       </div>
     </div>
 
-    <!-- Lista de alunos -->
-    <div id="listaAlunos" class="mx-4 mt-3 space-y-2" role="list" aria-live="polite"></div>
+    <!-- ── Especificações do Treino ───────────────────────────────────────────── -->
+    <section id="secaoEspecificacoes" class="hidden mx-4 mt-4 space-y-4">
+      <!-- Momento do Jogo -->
+      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+        <h3 class="text-sm font-semibold text-imperial-text mb-3">Momento do jogo</h3>
+        <div id="gridMomentos" class="grid grid-cols-2 gap-2"></div>
+      </div>
 
-    <!-- Histórico de chamadas anteriores -->
-    <section id="secaoHistorico" class="hidden mx-4 mt-6 mb-2">
-      <h2 class="text-xs font-semibold text-imperial-text-muted mb-2 uppercase tracking-wide">Chamadas Anteriores</h2>
-      <div id="listaHistorico" class="space-y-2"></div>
+      <!-- Princípios e Fundamentos -->
+      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-imperial-text">Princípios e fundamentos trabalhados</h3>
+          <span id="contadorPrincipios" class="text-xs text-imperial-green font-medium">0 selecionado(s)</span>
+        </div>
+        <div id="listaPrincipios" class="space-y-4"></div>
+      </div>
     </section>
 
   </main>
@@ -131,7 +172,7 @@
       type="button"
       class="w-full py-3 rounded-xl bg-imperial-green text-white font-semibold text-base shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 transition-all"
     >
-      Salvar Presença
+      Salvar Treino
     </button>
   </div>
 
@@ -181,6 +222,58 @@
     const AVATAR_COLORS = [
       '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
       '#06b6d4', '#eab308', '#ef4444', '#6366f1',
+    ];
+
+    // ─── Momentos do Jogo ────────────────────────────────────────────────────────
+    const MOMENTOS = [
+      { id: 'org_ofensiva',    label: 'Org. Ofensiva',    desc: 'Equipe com a posse, construindo jogadas' },
+      { id: 'org_defensiva',   label: 'Org. Defensiva',   desc: 'Equipe sem a posse, organizada para defender' },
+      { id: 'trans_ofensiva',  label: 'Trans. Ofensiva',  desc: 'Momento da recuperação da posse de bola' },
+      { id: 'trans_defensiva', label: 'Trans. Defensiva',  desc: 'Momento da perda da posse de bola' },
+    ];
+
+    const MOMENTOS_ICONS = {
+      org_ofensiva: `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>`,
+      org_defensiva: `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286z"/></svg>`,
+      trans_ofensiva: `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>`,
+      trans_defensiva: `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5"/></svg>`,
+    };
+
+    // ─── Princípios e Fundamentos ────────────────────────────────────────────────
+    const PRINCIPIOS_GRUPOS = [
+      {
+        titulo: 'Princípios Táticos Defensivos',
+        itens: [
+          { id: 'contencao',            label: 'Contenção' },
+          { id: 'cobertura_defensiva',  label: 'Cobertura Defensiva' },
+          { id: 'unidade_defensiva',    label: 'Unidade Defensiva' },
+          { id: 'concentracao',         label: 'Concentração' },
+          { id: 'equilibrio',           label: 'Equilíbrio' },
+        ]
+      },
+      {
+        titulo: 'Princípios Táticos Ofensivos',
+        itens: [
+          { id: 'espaco_sem_bola',     label: 'Espaço sem Bola' },
+          { id: 'espaco_com_bola',     label: 'Espaço com Bola' },
+          { id: 'cobertura_ofensiva',  label: 'Cobertura Ofensiva' },
+          { id: 'unidade_ofensiva',    label: 'Unidade Ofensiva' },
+          { id: 'penetracao',          label: 'Penetração' },
+          { id: 'mobilidade',          label: 'Mobilidade' },
+        ]
+      },
+      {
+        titulo: 'Fundamentos Técnicos',
+        itens: [
+          { id: 'controle_chao',       label: 'Controle de Bola no Chão' },
+          { id: 'controle_alto',       label: 'Controle de Bola no Alto' },
+          { id: 'drible',              label: 'Drible' },
+          { id: 'passe',               label: 'Passe' },
+          { id: 'dominio',             label: 'Domínio' },
+          { id: 'finalizacao',         label: 'Finalização' },
+          { id: 'cabeceio',            label: 'Cabeceio' },
+        ]
+      }
     ];
 
     // ─── State & sessionStorage ──────────────────────────────────────────────────
@@ -252,11 +345,14 @@
     function criarChamada(data, categoria) {
       const alunosDaCategoria = state.alunos.filter(a => a.categoria === categoria);
       const registros = alunosDaCategoria.map(a => ({ alunoId: a.id, status: 'pendente' }));
-      return { id: generateId(), data, categoria, registros };
+      return { id: generateId(), data, categoria, registros, momentos: [], principiosFundamentos: [] };
     }
 
     function getOrCreateChamada(data, categoria) {
-      return findChamada(data, categoria) || criarChamada(data, categoria);
+      const chamada = findChamada(data, categoria) || criarChamada(data, categoria);
+      if (!chamada.momentos) chamada.momentos = [];
+      if (!chamada.principiosFundamentos) chamada.principiosFundamentos = [];
+      return chamada;
     }
 
     function setStatus(chamada, alunoId, status) {
@@ -272,7 +368,7 @@
         state.chamadas.push(chamada);
       }
       saveState();
-      showToast('Presença salva com sucesso!');
+      showToast('Treino salvo com sucesso!');
     }
 
     function contarStatus(chamada) {
@@ -298,12 +394,10 @@
       if (chamada.registros.length === 0) {
         container.innerHTML = `<div class="py-10 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado nesta categoria.</div>`;
         document.getElementById('controlesGlobais').classList.add('hidden');
-        document.getElementById('containerSalvar').classList.add('hidden');
         return;
       }
 
       document.getElementById('controlesGlobais').classList.remove('hidden');
-      document.getElementById('containerSalvar').classList.remove('hidden');
 
       chamada.registros.forEach((reg, index) => {
         const aluno = state.alunos.find(a => a.id === reg.alunoId);
@@ -403,7 +497,107 @@
     // ─── Core render ─────────────────────────────────────────────────────────────
     let chamadaAtual = null;
     let categoriaAtiva = null;
+    let momentosSelecionados = [];
+    let principiosSelecionados = [];
 
+    // ─── UI: Accordion da chamada ───────────────────────────────────────────────
+    function toggleChamada() {
+      const conteudo = document.getElementById('chamadaConteudo');
+      const chevron = document.getElementById('chamadaChevron');
+      const header = document.getElementById('chamadaHeader');
+      const isExpanded = !conteudo.classList.contains('hidden');
+
+      conteudo.classList.toggle('hidden');
+      chevron.classList.toggle('rotate-180');
+      header.setAttribute('aria-expanded', String(!isExpanded));
+
+      // Show summary in header when collapsed
+      atualizarChamadaResumo();
+    }
+
+    function atualizarChamadaResumo() {
+      const resumo = document.getElementById('chamadaResumo');
+      const conteudo = document.getElementById('chamadaConteudo');
+      const isCollapsed = conteudo.classList.contains('hidden');
+
+      if (!isCollapsed || !chamadaAtual) {
+        resumo.textContent = '';
+        return;
+      }
+      const { presentes, faltas } = contarStatus(chamadaAtual);
+      resumo.textContent = `${presentes} pres. · ${faltas} falt.`;
+    }
+
+    // ─── UI: Especificações — Momentos ───────────────────────────────────────────
+    function renderMomentos() {
+      const container = document.getElementById('gridMomentos');
+      container.innerHTML = MOMENTOS.map(m => {
+        const sel = momentosSelecionados.includes(m.id);
+        return `
+          <button type="button"
+            class="momento-card text-left rounded-xl border p-3 transition-all ${sel ? 'border-imperial-green bg-imperial-green-light' : 'border-imperial-border bg-imperial-card hover:border-imperial-text-muted'}"
+            data-momento-id="${m.id}">
+            <div class="flex items-center gap-2 mb-1">
+              ${MOMENTOS_ICONS[m.id]}
+              <span class="text-sm font-semibold text-imperial-text">${m.label}</span>
+            </div>
+            <div class="text-xs text-imperial-text-muted leading-snug">${m.desc}</div>
+          </button>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.momento-card').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.momentoId;
+          const idx = momentosSelecionados.indexOf(id);
+          if (idx >= 0) momentosSelecionados.splice(idx, 1);
+          else momentosSelecionados.push(id);
+          renderMomentos();
+        });
+      });
+    }
+
+    // ─── UI: Especificações — Princípios/Fundamentos ─────────────────────────────
+    function renderPrincipios() {
+      const container = document.getElementById('listaPrincipios');
+      container.innerHTML = PRINCIPIOS_GRUPOS.map(grupo => {
+        const chips = grupo.itens.map(item => {
+          const sel = principiosSelecionados.includes(item.id);
+          return `<button type="button"
+            class="principio-chip px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${sel ? 'border-imperial-green bg-imperial-green-light text-imperial-green' : 'border-imperial-border bg-imperial-bg text-imperial-text-muted hover:border-imperial-text-muted'}"
+            data-principio-id="${item.id}">${item.label}</button>`;
+        }).join('');
+        return `
+          <div>
+            <h4 class="text-xs font-bold text-imperial-text-muted uppercase tracking-wide mb-2">${grupo.titulo}</h4>
+            <div class="flex flex-wrap gap-2">${chips}</div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.principio-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.principioId;
+          const idx = principiosSelecionados.indexOf(id);
+          if (idx >= 0) principiosSelecionados.splice(idx, 1);
+          else principiosSelecionados.push(id);
+          renderPrincipios();
+        });
+      });
+
+      document.getElementById('contadorPrincipios').textContent =
+        `${principiosSelecionados.length} selecionado(s)`;
+    }
+
+    function renderEspecificacoes() {
+      document.getElementById('secaoEspecificacoes').classList.remove('hidden');
+      momentosSelecionados = [...(chamadaAtual.momentos || [])];
+      principiosSelecionados = [...(chamadaAtual.principiosFundamentos || [])];
+      renderMomentos();
+      renderPrincipios();
+    }
+
+    // ─── Core render ─────────────────────────────────────────────────────────────
     function renderChamada() {
       const data = document.getElementById('inputData').value;
       const erroData = document.getElementById('erroData');
@@ -428,8 +622,10 @@
 
       chamadaAtual = getOrCreateChamada(data, categoriaAtiva);
 
+      // Show accordion container
+      document.getElementById('chamadaContainer').classList.remove('hidden');
+
       // Update panel title
-      const alunosDaCategoria = state.alunos.filter(a => a.categoria === categoriaAtiva);
       document.getElementById('tituloCategoria').textContent =
         `${CATEGORIAS_LABELS[categoriaAtiva]} — ${chamadaAtual.registros.length} aluno${chamadaAtual.registros.length !== 1 ? 's' : ''}`;
 
@@ -437,15 +633,24 @@
       atualizarContadores(chamadaAtual);
       renderLista(chamadaAtual);
       renderHistorico(categoriaAtiva, data);
+      atualizarChamadaResumo();
+
+      // Show save button and specs
+      document.getElementById('containerSalvar').classList.remove('hidden');
+      renderEspecificacoes();
     }
 
     function ocultarConteudo() {
+      document.getElementById('chamadaContainer').classList.add('hidden');
       document.getElementById('painelResumo').classList.add('hidden');
       document.getElementById('controlesGlobais').classList.add('hidden');
       document.getElementById('containerSalvar').classList.add('hidden');
       document.getElementById('listaAlunos').innerHTML = '';
       document.getElementById('secaoHistorico').classList.add('hidden');
+      document.getElementById('secaoEspecificacoes').classList.add('hidden');
       chamadaAtual = null;
+      momentosSelecionados = [];
+      principiosSelecionados = [];
     }
 
     // ─── Build category tabs ──────────────────────────────────────────────────────
@@ -492,9 +697,15 @@
       renderLista(chamadaAtual);
     });
 
+    // ─── Accordion da chamada ────────────────────────────────────────────────────
+    document.getElementById('chamadaHeader').addEventListener('click', toggleChamada);
+
     // ─── Salvar ───────────────────────────────────────────────────────────────────
     document.getElementById('btnSalvar').addEventListener('click', () => {
       if (!chamadaAtual) return;
+      // Persist specs along with attendance
+      chamadaAtual.momentos = [...momentosSelecionados];
+      chamadaAtual.principiosFundamentos = [...principiosSelecionados];
       salvarChamada(chamadaAtual);
       // Refresh histórico after save
       renderHistorico(categoriaAtiva, chamadaAtual.data);

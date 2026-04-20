@@ -28,7 +28,12 @@
       "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
       "Bash(git -C \"d:/Projetos/Nova pasta/imperial-soccer\" rev-parse --git-dir)",
       "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'Registro de presença dos alunos em treinos por categoria, com data do treino e navegação entre Alunos e Treino' -Json -ShortName 'attendance-tracking' 'Chamada de Treino'\")",
-      "Bash(powershell -File \".specify/scripts/powershell/create-new-feature.ps1\" \"vamos criar a funcionalidade de minutagem, ainda somente mock sem backend\" -Json -ShortName \"match-minutes\")"
+      "Bash(powershell -File \".specify/scripts/powershell/create-new-feature.ps1\" \"vamos criar a funcionalidade de minutagem, ainda somente mock sem backend\" -Json -ShortName \"match-minutes\")",
+      "Bash(pwsh -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustar tela de treino: chamada em botão recolhível, adicionar seção de especificações do treino com momentos do jogo \\(Org. Ofensiva, Org. Defensiva, Trans. Ofensiva, Trans. Defensiva\\) e princípios/fundamentos \\(Táticos Defensivos, Táticos Ofensivos, Fundamentos Técnicos\\)\" -Json -ShortName \"training-drill-specs\")",
+      "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustar tela de treino: chamada em botão recolhível, adicionar seção de especificações do treino com momentos do jogo e princípios/fundamentos táticos e técnicos\" -Json -ShortName \"training-drill-specs\")",
+      "Bash(powershell.exe -File .specify/scripts/powershell/setup-plan.ps1 -Json)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/check-prerequisites.ps1 -Json)"
     ]
   }
 }
