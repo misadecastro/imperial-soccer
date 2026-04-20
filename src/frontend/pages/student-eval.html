@@ -770,6 +770,7 @@
     document.getElementById('subtituloAluno').textContent = CATEGORIAS_LABELS[aluno.categoria] || aluno.categoria;
 
     document.getElementById('inputDataAvaliacao').max = todayISO();
+    document.getElementById('inputDataAvaliacao').value = todayISO();
 
     renderNotaGroup('grupoTatico',  'tatico');
     renderNotaGroup('grupoTecnico', 'tecnico');

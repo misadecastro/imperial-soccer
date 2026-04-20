@@ -391,14 +391,23 @@
               </div>
               ${renderEvalChips(avaliacao)}
             </div>
-            <!-- Action -->
-            <button
-              type="button"
-              data-aluno-id="${aluno.id}"
-              class="btn-avaliar btn-attendance shrink-0 px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white"
-            >
-              Avaliar
-            </button>
+            <!-- Actions -->
+            <div class="flex flex-col gap-1.5 shrink-0">
+              <button
+                type="button"
+                data-aluno-id="${aluno.id}"
+                class="btn-avaliar btn-attendance px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white"
+              >
+                Avaliar
+              </button>
+              <button
+                type="button"
+                data-aluno-id="${aluno.id}"
+                class="btn-excluir-aluno btn-attendance px-3 py-1.5 rounded-lg border border-imperial-red/30 text-imperial-red text-xs font-medium hover:bg-imperial-red-light"
+              >
+                Excluir
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -410,6 +419,21 @@
           window.location.href = `student-eval.html?alunoId=${btn.dataset.alunoId}`;
         });
       });
+
+      // Attach Excluir button listeners
+      container.querySelectorAll('.btn-excluir-aluno').forEach(btn => {
+        btn.addEventListener('click', () => excluirAluno(btn.dataset.alunoId));
+      });
+    }
+
+    // ─── Excluir Aluno ───────────────────────────────────────────────────────────
+    function excluirAluno(id) {
+      if (!window.confirm('Excluir este aluno? Esta ação também remove todas as suas avaliações.')) return;
+      state.alunos = state.alunos.filter(a => a.id !== id);
+      state.avaliacoes = state.avaliacoes.filter(a => a.alunoId !== id);
+      saveState();
+      renderAlunos();
+      showToast('Aluno excluído.', 'error');
     }
 
     // ─── Toggle cadastro ────────────────────────────────────────────────────────
