@@ -15,6 +15,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-20
 - `sessionStorage` com chave `"imperialState"` — estrutura estendida com campo `chamadas: []` (007-attendance-tracking)
 - HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS (007-attendance-tracking)
 - `sessionStorage` com chave `"imperialState"` — estrutura estendida com campo `jogos: []` (008-match-minutes)
+- HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 via CDN; Chart.js não é necessário nesta página (009-training-drill-specs)
+- `sessionStorage` com chave `"imperialState"` — estrutura de `chamadas[]` estendida com campos `momentos` e `principiosFundamentos` (009-training-drill-specs)
 
 - HTML5 + JavaScript ES Modules (navegadores modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (001-home-login-page)
 
@@ -35,9 +37,9 @@ npm test; npm run lint
 HTML5 + JavaScript ES Modules (navegadores modernos 2023+): Follow standard conventions
 
 ## Recent Changes
+- 009-training-drill-specs: Added HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 via CDN; Chart.js não é necessário nesta página
 - 008-match-minutes: Added HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS
 - 007-attendance-tracking: Added HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS
-- 007-attendance-tracking: Added HTML5 + JavaScript ES Modules (navegadores 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`)
 
 
 <!-- MANUAL ADDITIONS START -->
