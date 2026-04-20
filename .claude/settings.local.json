@@ -27,7 +27,8 @@
       "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
       "Bash(powershell -Command \"./.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks\")",
       "Bash(git -C \"d:/Projetos/Nova pasta/imperial-soccer\" rev-parse --git-dir)",
-      "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'Registro de presença dos alunos em treinos por categoria, com data do treino e navegação entre Alunos e Treino' -Json -ShortName 'attendance-tracking' 'Chamada de Treino'\")"
+      "Bash(powershell -Command \"./.specify/scripts/powershell/create-new-feature.ps1 'Registro de presença dos alunos em treinos por categoria, com data do treino e navegação entre Alunos e Treino' -Json -ShortName 'attendance-tracking' 'Chamada de Treino'\")",
+      "Bash(powershell -File \".specify/scripts/powershell/create-new-feature.ps1\" \"vamos criar a funcionalidade de minutagem, ainda somente mock sem backend\" -Json -ShortName \"match-minutes\")"
     ]
   }
 }

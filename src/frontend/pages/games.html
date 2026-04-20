@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imperial Soccer — Jogos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/imperial.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            imperial: {
+              green:         '#2a7a3d',
+              'green-mid':   '#16a34a',
+              'green-light': '#dcfce7',
+              red:           '#dc2626',
+              'red-light':   '#fee2e2',
+              bg:            '#f0f4f1',
+              card:          '#ffffff',
+              text:          '#111827',
+              'text-muted':  '#6b7280',
+              border:        '#e5e7eb',
+            }
+          },
+          fontFamily: {
+            display: ['Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-16">
+
+  <!-- Header -->
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center gap-3">
+    <svg class="w-8 h-8 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <circle cx="12" cy="14" r="7"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 7V4M10 4h4M12 14l3-3"/>
+    </svg>
+    <div>
+      <div class="text-base font-bold text-white leading-tight">Imperial Soccer</div>
+      <div class="text-xs text-white/70">Jogos e Minutagem</div>
+    </div>
+  </header>
+
+  <!-- Toast notification -->
+  <div
+    id="toast"
+    class="hidden fixed top-6 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none max-w-xs"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <!-- Main -->
+  <main class="flex-1 w-full max-w-2xl mx-auto px-4 py-6 space-y-4">
+
+    <!-- ── Section: Lista de Jogos ─────────────────────────────────────────── -->
+    <section id="secaoLista">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-imperial-text">Jogos Realizados</h2>
+        <button
+          type="button"
+          id="btnNovoJogo"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Novo Jogo
+        </button>
+      </div>
+      <div id="listaJogos" class="space-y-2" role="list" aria-live="polite"></div>
+    </section>
+
+    <!-- ── Section: Formulário de Jogo ────────────────────────────────────── -->
+    <section id="secaoFormJogo" class="hidden">
+      <h2 id="tituloFormJogo" class="text-lg font-bold text-imperial-text mb-4">Novo Jogo</h2>
+
+      <form id="formJogo" class="bg-imperial-card rounded-2xl p-5 space-y-4 border border-imperial-border shadow-sm" novalidate>
+
+        <!-- Data -->
+        <div>
+          <label for="inputDataJogo" class="block text-sm font-medium text-imperial-text mb-1">
+            Data de Realização <span class="text-imperial-red">*</span>
+          </label>
+          <input
+            type="date"
+            id="inputDataJogo"
+            class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+          />
+          <p id="erroDataJogo" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
+        </div>
+
+        <!-- Nome -->
+        <div>
+          <label for="inputNomeJogo" class="block text-sm font-medium text-imperial-text mb-1">
+            Nome do Jogo <span class="text-imperial-red">*</span>
+          </label>
+          <input
+            type="text"
+            id="inputNomeJogo"
+            placeholder="Ex.: vs. América"
+            class="w-full px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text placeholder-imperial-text-muted focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+          />
+          <p id="erroNomeJogo" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
+        </div>
+
+        <!-- Participantes -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-imperial-text">Participantes</span>
+            <button
+              type="button"
+              id="btnAdicionarAlunos"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white transition-all"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Adicionar Alunos
+            </button>
+          </div>
+
+          <!-- Painel Seletor de Alunos -->
+          <div id="painelSeletorAlunos" class="hidden bg-imperial-bg rounded-xl border border-imperial-border p-4 mb-3 space-y-3">
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                id="filtroNomeSeletor"
+                placeholder="Buscar por nome..."
+                class="flex-1 px-3 py-2 rounded-lg bg-imperial-card border border-imperial-border text-imperial-text placeholder-imperial-text-muted text-sm focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+              />
+              <select
+                id="filtroCategoriaSeletor"
+                class="sm:w-44 px-3 py-2 rounded-lg bg-imperial-card border border-imperial-border text-imperial-text text-sm focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+              >
+                <option value="">Todas as categorias</option>
+              </select>
+            </div>
+            <div id="listaSeletorAlunos" class="space-y-1 max-h-52 overflow-y-auto"></div>
+            <button
+              type="button"
+              id="btnConfirmarSelecao"
+              class="w-full py-2 rounded-lg bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all shadow-sm"
+            >
+              Adicionar Selecionados
+            </button>
+          </div>
+
+          <!-- Lista de participantes -->
+          <div id="listaParticipacoes" class="space-y-2"></div>
+          <p id="semParticipantes" class="hidden text-xs text-imperial-text-muted py-3 text-center">Nenhum aluno adicionado ainda.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-1 flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+          >
+            Salvar Jogo
+          </button>
+          <button
+            type="button"
+            id="btnCancelarFormJogo"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl border border-imperial-border text-imperial-text-muted hover:text-imperial-text font-medium transition-all"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Menu de navegação inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-imperial-card border-t border-imperial-border flex h-16 z-40">
+    <a
+      href="students.html"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
+      aria-label="Alunos"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span class="text-xs font-medium">Alunos</span>
+    </a>
+    <a
+      href="training.html"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
+      aria-label="Treino"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <span class="text-xs font-medium">Treino</span>
+    </a>
+    <a
+      href="games.html"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green border-t-2 border-imperial-green font-semibold"
+      aria-label="Jogos"
+      aria-current="page"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="14" r="6"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8V5M10 5h4M12 14l2.5-2.5"/>
+      </svg>
+      <span class="text-xs font-medium">Jogos</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    // ─── Constants ──────────────────────────────────────────────────────────────
+    const CATEGORIAS = ['Sub09', 'Sub10', 'Sub11', 'Sub12', 'Sub13', 'Sub14'];
+
+    const CATEGORIAS_LABELS = {
+      Sub09: 'Sub 09', Sub10: 'Sub 10', Sub11: 'Sub 11',
+      Sub12: 'Sub 12', Sub13: 'Sub 13', Sub14: 'Sub 14',
+    };
+
+    const AVATAR_COLORS = [
+      '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
+      '#06b6d4', '#eab308', '#ef4444', '#6366f1',
+    ];
+
+    // ─── State & sessionStorage ──────────────────────────────────────────────────
+    const STATE_KEY = 'imperialState';
+
+    function loadState() {
+      try {
+        const raw = sessionStorage.getItem(STATE_KEY);
+        if (!raw) return { alunos: [], avaliacoes: [], chamadas: [], jogos: [] };
+        const parsed = JSON.parse(raw);
+        if (!parsed.jogos) parsed.jogos = [];
+        return parsed;
+      } catch {
+        return { alunos: [], avaliacoes: [], chamadas: [], jogos: [] };
+      }
+    }
+
+    function saveState() {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
+
+    const state = loadState();
+
+    // ─── Utilities ───────────────────────────────────────────────────────────────
+    function generateId() {
+      return crypto.randomUUID();
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function formatDate(isoDate) {
+      if (!isoDate) return '';
+      const [year, month, day] = isoDate.substring(0, 10).split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function getInitials(nome) {
+      const parts = String(nome).trim().split(/\s+/);
+      if (parts.length === 1) return parts[0][0].toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function getAvatarColor(index) {
+      return AVATAR_COLORS[index % AVATAR_COLORS.length];
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = [
+        'fixed top-6 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none max-w-xs',
+        type === 'success' ? 'bg-imperial-green text-white' : 'bg-imperial-red text-white',
+      ].join(' ');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // ─── Domain: Jogos ───────────────────────────────────────────────────────────
+    function findJogo(id) {
+      return state.jogos.find(j => j.id === id);
+    }
+
+    function saveJogo(dados, id) {
+      if (id) {
+        const jogo = findJogo(id);
+        if (jogo) Object.assign(jogo, dados);
+      } else {
+        state.jogos.push({ id: generateId(), ...dados });
+      }
+      saveState();
+    }
+
+    function deleteJogo(id) {
+      state.jogos = state.jogos.filter(j => j.id !== id);
+      saveState();
+    }
+
+    // ─── UI State ────────────────────────────────────────────────────────────────
+    let jogoEditando = null;
+    let participacoesAtual = [];
+
+    // ─── Render: seletor de alunos ───────────────────────────────────────────────
+    function renderSeletorAlunos() {
+      const filtroNome = document.getElementById('filtroNomeSeletor').value.trim().toLowerCase();
+      const filtroCat = document.getElementById('filtroCategoriaSeletor').value;
+      const idsJaAdicionados = new Set(participacoesAtual.map(p => p.alunoId));
+      const listaSeletor = document.getElementById('listaSeletorAlunos');
+      const btnConfirmar = document.getElementById('btnConfirmarSelecao');
+
+      if (state.alunos.length === 0) {
+        listaSeletor.innerHTML = '<div class="py-6 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado no sistema.</div>';
+        btnConfirmar.classList.add('hidden');
+        return;
+      }
+
+      btnConfirmar.classList.remove('hidden');
+
+      const filtrados = state.alunos.filter(a => {
+        const matchNome = !filtroNome || a.nome.toLowerCase().includes(filtroNome);
+        const matchCat = !filtroCat || a.categoria === filtroCat;
+        return matchNome && matchCat;
+      });
+
+      if (filtrados.length === 0) {
+        listaSeletor.innerHTML = '<div class="py-4 text-center text-imperial-text-muted text-sm">Nenhum aluno encontrado.</div>';
+        return;
+      }
+
+      listaSeletor.innerHTML = filtrados.map((aluno, index) => {
+        const cor = getAvatarColor(state.alunos.indexOf(aluno));
+        const iniciais = escapeHtml(getInitials(aluno.nome));
+        const jaAdicionado = idsJaAdicionados.has(aluno.id);
+        return `
+          <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-imperial-card cursor-pointer select-none${jaAdicionado ? ' opacity-50' : ''}">
+            <input
+              type="checkbox"
+              class="aluno-check w-4 h-4 rounded"
+              data-aluno-id="${escapeHtml(aluno.id)}"
+              ${jaAdicionado ? 'disabled' : ''}
+            />
+            <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color:${cor};">${iniciais}</div>
+            <div class="min-w-0">
+              <div class="font-medium text-sm text-imperial-text truncate">${escapeHtml(aluno.nome)}</div>
+              <div class="text-xs text-imperial-text-muted">${CATEGORIAS_LABELS[aluno.categoria] || aluno.categoria}</div>
+            </div>
+          </label>
+        `;
+      }).join('');
+    }
+
+    // ─── Render: participações ───────────────────────────────────────────────────
+    function renderParticipacoes() {
+      const container = document.getElementById('listaParticipacoes');
+      const semMsg = document.getElementById('semParticipantes');
+
+      if (participacoesAtual.length === 0) {
+        container.innerHTML = '';
+        semMsg.classList.remove('hidden');
+        return;
+      }
+
+      semMsg.classList.add('hidden');
+
+      container.innerHTML = participacoesAtual.map(p => {
+        const aluno = state.alunos.find(a => a.id === p.alunoId);
+        if (!aluno) return '';
+        const idx = state.alunos.findIndex(a => a.id === p.alunoId);
+        const cor = getAvatarColor(idx);
+        const iniciais = escapeHtml(getInitials(aluno.nome));
+        return `
+          <div class="bg-imperial-card rounded-xl border border-imperial-border px-4 py-3 flex items-center gap-3" data-aluno-id="${escapeHtml(p.alunoId)}">
+            <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background-color:${cor};">${iniciais}</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm text-imperial-text truncate">${escapeHtml(aluno.nome)}</div>
+              <div class="text-xs text-imperial-text-muted">${CATEGORIAS_LABELS[aluno.categoria] || aluno.categoria}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-xs text-imperial-text-muted">min</span>
+              <input
+                type="number"
+                min="0"
+                value="${p.minutos}"
+                class="min-input w-16 px-2 py-1.5 rounded-lg border border-imperial-border text-imperial-text text-sm text-center bg-imperial-bg focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+                data-aluno-id="${escapeHtml(p.alunoId)}"
+                aria-label="Minutos de ${escapeHtml(aluno.nome)}"
+              />
+              <button
+                type="button"
+                class="btn-remover-participante text-xl leading-none text-imperial-text-muted hover:text-imperial-red transition-colors"
+                data-aluno-id="${escapeHtml(p.alunoId)}"
+                aria-label="Remover ${escapeHtml(aluno.nome)}"
+              >×</button>
+            </div>
+          </div>
+        `;
+      }).filter(Boolean).join('');
+
+      container.querySelectorAll('.btn-remover-participante').forEach(btn => {
+        btn.addEventListener('click', () => {
+          participacoesAtual = participacoesAtual.filter(p => p.alunoId !== btn.dataset.alunoId);
+          renderParticipacoes();
+        });
+      });
+    }
+
+    // ─── Render: formulário ──────────────────────────────────────────────────────
+    function renderFormJogo(jogo) {
+      jogoEditando = jogo || null;
+      participacoesAtual = jogo ? jogo.participacoes.map(p => ({ ...p })) : [];
+
+      document.getElementById('secaoLista').classList.add('hidden');
+      document.getElementById('secaoFormJogo').classList.remove('hidden');
+      document.getElementById('painelSeletorAlunos').classList.add('hidden');
+
+      document.getElementById('tituloFormJogo').textContent = jogo ? 'Editar Jogo' : 'Novo Jogo';
+      document.getElementById('inputDataJogo').value = jogo ? jogo.data : '';
+      document.getElementById('inputNomeJogo').value = jogo ? jogo.nome : '';
+      document.getElementById('erroDataJogo').classList.add('hidden');
+      document.getElementById('erroNomeJogo').classList.add('hidden');
+      document.getElementById('filtroNomeSeletor').value = '';
+      document.getElementById('filtroCategoriaSeletor').value = '';
+
+      // Populate categoria select once
+      const sel = document.getElementById('filtroCategoriaSeletor');
+      if (sel.options.length <= 1) {
+        CATEGORIAS.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = CATEGORIAS_LABELS[cat];
+          sel.appendChild(opt);
+        });
+      }
+
+      renderParticipacoes();
+    }
+
+    // ─── Render: lista de jogos ──────────────────────────────────────────────────
+    function renderLista() {
+      jogoEditando = null;
+      participacoesAtual = [];
+      document.getElementById('secaoLista').classList.remove('hidden');
+      document.getElementById('secaoFormJogo').classList.add('hidden');
+      document.getElementById('painelSeletorAlunos').classList.add('hidden');
+
+      const sorted = [...state.jogos].sort((a, b) => b.data.localeCompare(a.data));
+      const container = document.getElementById('listaJogos');
+
+      if (sorted.length === 0) {
+        container.innerHTML = '<div class="py-14 text-center text-imperial-text-muted text-sm">Nenhum jogo registrado ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = sorted.map(jogo => {
+        const qtd = jogo.participacoes.length;
+        return `
+          <div class="bg-imperial-card rounded-xl px-4 py-3 border border-imperial-border shadow-sm flex items-center gap-3" role="listitem">
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm text-imperial-text truncate">${escapeHtml(jogo.nome)}</div>
+              <div class="text-xs text-imperial-text-muted mt-0.5">${formatDate(jogo.data)} · ${qtd} aluno${qtd !== 1 ? 's' : ''}</div>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button
+                type="button"
+                class="btn-editar px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted transition-all"
+                data-jogo-id="${escapeHtml(jogo.id)}"
+                aria-label="Editar ${escapeHtml(jogo.nome)}"
+              >Editar</button>
+              <button
+                type="button"
+                class="btn-excluir px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-red/30 text-imperial-red hover:bg-imperial-red-light transition-all"
+                data-jogo-id="${escapeHtml(jogo.id)}"
+                aria-label="Excluir ${escapeHtml(jogo.nome)}"
+              >Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', () => renderFormJogo(findJogo(btn.dataset.jogoId)));
+      });
+
+      container.querySelectorAll('.btn-excluir').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (window.confirm('Excluir este jogo? Esta ação não pode ser desfeita.')) {
+            deleteJogo(btn.dataset.jogoId);
+            renderLista();
+            showToast('Jogo excluído.', 'error');
+          }
+        });
+      });
+    }
+
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    document.getElementById('btnNovoJogo').addEventListener('click', () => renderFormJogo(null));
+    document.getElementById('btnCancelarFormJogo').addEventListener('click', () => renderLista());
+
+    document.getElementById('btnAdicionarAlunos').addEventListener('click', () => {
+      const painel = document.getElementById('painelSeletorAlunos');
+      painel.classList.toggle('hidden');
+      if (!painel.classList.contains('hidden')) {
+        renderSeletorAlunos();
+        document.getElementById('filtroNomeSeletor').focus();
+      }
+    });
+
+    document.getElementById('filtroNomeSeletor').addEventListener('input', renderSeletorAlunos);
+    document.getElementById('filtroCategoriaSeletor').addEventListener('change', renderSeletorAlunos);
+
+    document.getElementById('btnConfirmarSelecao').addEventListener('click', () => {
+      const checks = document.querySelectorAll('.aluno-check:checked');
+      const idsJa = new Set(participacoesAtual.map(p => p.alunoId));
+      checks.forEach(chk => {
+        const id = chk.dataset.alunoId;
+        if (!idsJa.has(id)) {
+          participacoesAtual.push({ alunoId: id, minutos: 0 });
+        }
+      });
+      document.getElementById('painelSeletorAlunos').classList.add('hidden');
+      document.getElementById('filtroNomeSeletor').value = '';
+      document.getElementById('filtroCategoriaSeletor').value = '';
+      renderParticipacoes();
+      renderSeletorAlunos();
+    });
+
+    document.getElementById('formJogo').addEventListener('submit', e => {
+      e.preventDefault();
+
+      const erroData = document.getElementById('erroDataJogo');
+      const erroNome = document.getElementById('erroNomeJogo');
+      erroData.classList.add('hidden');
+      erroNome.classList.add('hidden');
+
+      const data = document.getElementById('inputDataJogo').value;
+      const nome = document.getElementById('inputNomeJogo').value.trim();
+
+      let valid = true;
+      if (!data) {
+        erroData.textContent = 'Data é obrigatória.';
+        erroData.classList.remove('hidden');
+        document.getElementById('inputDataJogo').focus();
+        valid = false;
+      }
+      if (!nome) {
+        erroNome.textContent = 'Nome do jogo é obrigatório.';
+        erroNome.classList.remove('hidden');
+        if (valid) document.getElementById('inputNomeJogo').focus();
+        valid = false;
+      }
+      if (!valid) return;
+
+      // Collect current minutes from inputs before saving
+      document.querySelectorAll('#listaParticipacoes .min-input').forEach(input => {
+        const alunoId = input.dataset.alunoId;
+        const p = participacoesAtual.find(x => x.alunoId === alunoId);
+        if (p) p.minutos = parseInt(input.value, 10) || 0;
+      });
+
+      const isEditing = !!jogoEditando;
+      saveJogo({ data, nome, participacoes: participacoesAtual }, jogoEditando?.id);
+      renderLista();
+      showToast(isEditing ? 'Jogo atualizado com sucesso!' : 'Jogo salvo com sucesso!');
+    });
+
+    // ─── Boot ────────────────────────────────────────────────────────────────────
+    document.getElementById('inputDataJogo').max = new Date().toISOString().split('T')[0];
+    renderLista();
+  </script>
+
+</body>
+</html>
