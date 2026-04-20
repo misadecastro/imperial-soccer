@@ -33,7 +33,8 @@
       "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustar tela de treino: chamada em botão recolhível, adicionar seção de especificações do treino com momentos do jogo e princípios/fundamentos táticos e técnicos\" -Json -ShortName \"training-drill-specs\")",
       "Bash(powershell.exe -File .specify/scripts/powershell/setup-plan.ps1 -Json)",
       "Bash(powershell.exe -File .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
-      "Bash(powershell.exe -File .specify/scripts/powershell/check-prerequisites.ps1 -Json)"
+      "Bash(powershell.exe -File .specify/scripts/powershell/check-prerequisites.ps1 -Json)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustes na tela de treino: listagem de treinos por data com presentes e principios, CRUD completo \\(adicionar/editar/excluir\\), e filtro de fundamentos conforme momento do jogo selecionado\" -Json -ShortName \"training-crud-list\")"
     ]
   }
 }

@@ -29,7 +29,7 @@
     }
   </script>
 </head>
-<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-32">
+<body class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-16">
 
   <!-- Header -->
   <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center gap-3">
@@ -54,160 +54,146 @@
   ></div>
 
   <!-- Main -->
-  <main class="flex-1 w-full max-w-2xl mx-auto">
+  <main class="flex-1 w-full max-w-2xl mx-auto px-4 py-6 space-y-4">
 
-    <!-- Data do treino -->
-    <div class="mx-4 mt-4 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-4">
-      <label for="inputData" class="block text-sm font-medium text-imperial-text mb-2">
-        Data do treino
-      </label>
-      <input
-        type="date"
-        id="inputData"
-        class="w-full sm:w-64 px-4 py-2 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
-      />
-      <p id="erroData" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
-    </div>
+    <!-- ── Section: Lista de Treinos ───────────────────────────────────────── -->
+    <section id="secaoLista">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-imperial-text">Treinos Realizados</h2>
+        <button
+          type="button"
+          id="btnNovoTreino"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Novo Treino
+        </button>
+      </div>
+      <div id="listaTreinos" class="space-y-3" role="list" aria-live="polite"></div>
+    </section>
 
-    <!-- Abas de categoria -->
-    <div id="abas" class="flex overflow-x-auto scrollbar-none gap-2 px-4 py-3 bg-imperial-card border-b border-imperial-border mt-3 shadow-sm mx-4 rounded-xl" role="tablist" aria-label="Categorias">
-      <!-- Geradas via JS -->
-    </div>
+    <!-- ── Section: Formulário de Treino ───────────────────────────────────── -->
+    <section id="secaoFormTreino" class="hidden space-y-4">
+      <h2 id="tituloFormTreino" class="text-lg font-bold text-imperial-text">Novo Treino</h2>
 
-    <!-- ── Chamada (Accordion) ──────────────────────────────────────────────── -->
-    <div id="chamadaContainer" class="hidden mx-4 mt-3">
-      <!-- Header clicável -->
-      <div
-        id="chamadaHeader"
-        class="bg-imperial-card rounded-xl border border-imperial-border px-4 py-3 flex items-center justify-between cursor-pointer select-none shadow-sm"
-        role="button"
-        aria-expanded="true"
-        aria-controls="chamadaConteudo"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-semibold text-imperial-text">Chamada</span>
-          <span id="chamadaResumo" class="text-xs text-imperial-text-muted"></span>
-        </div>
-        <svg id="chamadaChevron" class="w-4 h-4 text-imperial-text-muted transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-        </svg>
+      <!-- Data -->
+      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+        <label for="inputDataTreino" class="block text-sm font-medium text-imperial-text mb-1">
+          Data de Realização <span class="text-imperial-red">*</span>
+        </label>
+        <input
+          type="date"
+          id="inputDataTreino"
+          class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+        />
+        <p id="erroDataTreino" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
       </div>
 
-      <!-- Conteúdo recolhível -->
-      <div id="chamadaConteudo">
-        <!-- Controles globais -->
-        <div id="controlesGlobais" class="hidden mt-2 flex gap-2">
-          <button
-            id="btnTodosPresentes"
-            type="button"
-            class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-green-mid text-imperial-green-mid hover:bg-imperial-green-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-green-mid"
-          >
-            Todos Presentes
-          </button>
-          <button
-            id="btnTodosAusentes"
-            type="button"
-            class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-red text-imperial-red hover:bg-imperial-red-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-red"
-          >
-            Todos Ausentes
-          </button>
-        </div>
+      <!-- Categoria -->
+      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+        <label for="selectCategoriaTreino" class="block text-sm font-medium text-imperial-text mb-1">
+          Categoria <span class="text-imperial-red">*</span>
+        </label>
+        <select
+          id="selectCategoriaTreino"
+          class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+        >
+          <option value="">Selecione a categoria</option>
+        </select>
+        <p id="erroCategoriaTreino" class="hidden mt-1 text-xs text-imperial-red" role="alert"></p>
+      </div>
 
-        <!-- Painel de resumo -->
-        <div id="painelResumo" class="hidden mt-2 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3">
-          <div class="flex items-center justify-between">
-            <span id="tituloCategoria" class="text-sm font-semibold text-imperial-text"></span>
-            <div class="flex gap-4">
-              <div class="text-center">
-                <div id="contPresentes" class="text-xl font-bold text-imperial-green-mid">0</div>
-                <div class="text-xs text-imperial-text-muted">Presentes</div>
-              </div>
-              <div class="text-center">
-                <div id="contFaltas" class="text-xl font-bold text-imperial-red">0</div>
-                <div class="text-xs text-imperial-text-muted">Faltas</div>
-              </div>
-              <div class="text-center">
-                <div id="contPendentes" class="text-xl font-bold text-imperial-text-muted">0</div>
-                <div class="text-xs text-imperial-text-muted">Pendentes</div>
+      <!-- ── Chamada (Accordion) ──────────────────────────────────────────── -->
+      <div id="chamadaContainer" class="hidden">
+        <div
+          id="chamadaHeader"
+          class="bg-imperial-card rounded-xl border border-imperial-border px-4 py-3 flex items-center justify-between cursor-pointer select-none shadow-sm"
+          role="button"
+          aria-expanded="true"
+          aria-controls="chamadaConteudo"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-imperial-text">Chamada</span>
+            <span id="chamadaResumo" class="text-xs text-imperial-text-muted"></span>
+          </div>
+          <svg id="chamadaChevron" class="w-4 h-4 text-imperial-text-muted transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+        <div id="chamadaConteudo">
+          <div id="controlesGlobais" class="hidden mt-2 flex gap-2">
+            <button id="btnTodosPresentes" type="button" class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-green-mid text-imperial-green-mid hover:bg-imperial-green-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-green-mid">Todos Presentes</button>
+            <button id="btnTodosAusentes" type="button" class="flex-1 py-2 rounded-lg text-sm font-medium border border-imperial-red text-imperial-red hover:bg-imperial-red-light btn-attendance focus:outline-none focus:ring-2 focus:ring-imperial-red">Todos Ausentes</button>
+          </div>
+          <div id="painelResumo" class="hidden mt-2 bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3">
+            <div class="flex items-center justify-between">
+              <span id="tituloCategoria" class="text-sm font-semibold text-imperial-text"></span>
+              <div class="flex gap-4">
+                <div class="text-center">
+                  <div id="contPresentes" class="text-xl font-bold text-imperial-green-mid">0</div>
+                  <div class="text-xs text-imperial-text-muted">Presentes</div>
+                </div>
+                <div class="text-center">
+                  <div id="contFaltas" class="text-xl font-bold text-imperial-red">0</div>
+                  <div class="text-xs text-imperial-text-muted">Faltas</div>
+                </div>
+                <div class="text-center">
+                  <div id="contPendentes" class="text-xl font-bold text-imperial-text-muted">0</div>
+                  <div class="text-xs text-imperial-text-muted">Pendentes</div>
+                </div>
               </div>
             </div>
           </div>
+          <div id="listaAlunos" class="mt-2 space-y-2" role="list" aria-live="polite"></div>
         </div>
-
-        <!-- Lista de alunos -->
-        <div id="listaAlunos" class="mt-2 space-y-2" role="list" aria-live="polite"></div>
-
-        <!-- Histórico de chamadas anteriores -->
-        <section id="secaoHistorico" class="hidden mt-4 mb-2">
-          <h2 class="text-xs font-semibold text-imperial-text-muted mb-2 uppercase tracking-wide">Chamadas Anteriores</h2>
-          <div id="listaHistorico" class="space-y-2"></div>
-        </section>
-      </div>
-    </div>
-
-    <!-- ── Especificações do Treino ───────────────────────────────────────────── -->
-    <section id="secaoEspecificacoes" class="hidden mx-4 mt-4 space-y-4">
-      <!-- Momento do Jogo -->
-      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
-        <h3 class="text-sm font-semibold text-imperial-text mb-3">Momento do jogo</h3>
-        <div id="gridMomentos" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- Princípios e Fundamentos -->
-      <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-semibold text-imperial-text">Princípios e fundamentos trabalhados</h3>
-          <span id="contadorPrincipios" class="text-xs text-imperial-green font-medium">0 selecionado(s)</span>
+      <!-- ── Especificações do Treino ─────────────────────────────────────── -->
+      <section id="secaoEspecificacoes" class="hidden space-y-4">
+        <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+          <h3 class="text-sm font-semibold text-imperial-text mb-3">Momento do jogo</h3>
+          <div id="gridMomentos" class="grid grid-cols-2 gap-2"></div>
         </div>
-        <div id="listaPrincipios" class="space-y-4"></div>
+        <div class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-imperial-text">Princípios e fundamentos trabalhados</h3>
+            <span id="contadorPrincipios" class="text-xs text-imperial-green font-medium">0 selecionado(s)</span>
+          </div>
+          <div id="listaPrincipios" class="space-y-4"></div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-1">
+        <button
+          type="button"
+          id="btnSalvarTreino"
+          class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+        >Salvar Treino</button>
+        <button
+          type="button"
+          id="btnCancelarFormTreino"
+          class="w-full sm:w-auto px-8 py-3 rounded-xl border border-imperial-border text-imperial-text-muted hover:text-imperial-text font-medium transition-all"
+        >Cancelar</button>
       </div>
     </section>
 
   </main>
 
-  <!-- Botão Salvar (fixo acima da barra de navegação) -->
-  <div id="containerSalvar" class="hidden fixed bottom-16 left-0 right-0 px-4 py-3 bg-imperial-bg border-t border-imperial-border z-30">
-    <button
-      id="btnSalvar"
-      type="button"
-      class="w-full py-3 rounded-xl bg-imperial-green text-white font-semibold text-base shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 transition-all"
-    >
-      Salvar Treino
-    </button>
-  </div>
-
   <!-- Menu de navegação inferior -->
   <nav class="fixed bottom-0 left-0 right-0 bg-imperial-card border-t border-imperial-border flex h-16 z-40">
-    <a
-      href="students.html"
-      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
-      aria-label="Alunos"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
+    <a href="students.html" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Alunos">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
       <span class="text-xs font-medium">Alunos</span>
     </a>
-    <a
-      href="training.html"
-      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green font-semibold border-t-2 border-imperial-green"
-      aria-label="Treino"
-      aria-current="page"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
+    <a href="training.html" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green font-semibold border-t-2 border-imperial-green" aria-label="Treino" aria-current="page">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
       <span class="text-xs font-medium">Treino</span>
     </a>
-    <a
-      href="games.html"
-      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
-      aria-label="Jogos"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="12" cy="14" r="6"/>
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8V5M10 5h4M12 14l2.5-2.5"/>
-      </svg>
+    <a href="games.html" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Jogos">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="14" r="6"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 8V5M10 5h4M12 14l2.5-2.5"/></svg>
       <span class="text-xs font-medium">Jogos</span>
     </a>
   </nav>
@@ -239,10 +225,18 @@
       trans_defensiva: `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 004.5 9.75v7.5a2.25 2.25 0 002.25 2.25h7.5a2.25 2.25 0 002.25-2.25v-7.5a2.25 2.25 0 00-2.25-2.25h-.75m-6 3.75l3 3m0 0l3-3m-3 3V1.5"/></svg>`,
     };
 
+    const MOMENTOS_TIPO = {
+      org_ofensiva:   'ofensivo',
+      org_defensiva:  'defensivo',
+      trans_ofensiva: 'ofensivo',
+      trans_defensiva: 'defensivo',
+    };
+
     // ─── Princípios e Fundamentos ────────────────────────────────────────────────
     const PRINCIPIOS_GRUPOS = [
       {
         titulo: 'Princípios Táticos Defensivos',
+        filtro: 'defensivo',
         itens: [
           { id: 'contencao',            label: 'Contenção' },
           { id: 'cobertura_defensiva',  label: 'Cobertura Defensiva' },
@@ -253,6 +247,7 @@
       },
       {
         titulo: 'Princípios Táticos Ofensivos',
+        filtro: 'ofensivo',
         itens: [
           { id: 'espaco_sem_bola',     label: 'Espaço sem Bola' },
           { id: 'espaco_com_bola',     label: 'Espaço com Bola' },
@@ -264,6 +259,7 @@
       },
       {
         titulo: 'Fundamentos Técnicos',
+        filtro: 'sempre',
         itens: [
           { id: 'controle_chao',       label: 'Controle de Bola no Chão' },
           { id: 'controle_alto',       label: 'Controle de Bola no Alto' },
@@ -298,13 +294,8 @@
     const state = loadState();
 
     // ─── Utilities ───────────────────────────────────────────────────────────────
-    function generateId() {
-      return crypto.randomUUID();
-    }
-
-    function todayISO() {
-      return new Date().toISOString().split('T')[0];
-    }
+    function generateId() { return crypto.randomUUID(); }
+    function todayISO() { return new Date().toISOString().split('T')[0]; }
 
     function formatDate(isoDate) {
       if (!isoDate) return '';
@@ -313,11 +304,7 @@
     }
 
     function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     function getInitials(nome) {
@@ -335,6 +322,22 @@
       ].join(' ');
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function getLabelPrincipio(id) {
+      for (const grupo of PRINCIPIOS_GRUPOS) {
+        const item = grupo.itens.find(i => i.id === id);
+        if (item) return item.label;
+      }
+      return id;
+    }
+
+    function getGruposVisiveis() {
+      const tipos = new Set(['sempre']);
+      for (const mId of momentosSelecionados) {
+        if (MOMENTOS_TIPO[mId]) tipos.add(MOMENTOS_TIPO[mId]);
+      }
+      return tipos;
     }
 
     // ─── Domain logic ────────────────────────────────────────────────────────────
@@ -368,7 +371,11 @@
         state.chamadas.push(chamada);
       }
       saveState();
-      showToast('Treino salvo com sucesso!');
+    }
+
+    function deleteTreino(id) {
+      state.chamadas = state.chamadas.filter(c => c.id !== id);
+      saveState();
     }
 
     function contarStatus(chamada) {
@@ -378,125 +385,9 @@
       return { presentes, faltas, pendentes };
     }
 
-    // ─── UI: contadores ───────────────────────────────────────────────────────────
-    function atualizarContadores(chamada) {
-      const { presentes, faltas, pendentes } = contarStatus(chamada);
-      document.getElementById('contPresentes').textContent = presentes;
-      document.getElementById('contFaltas').textContent    = faltas;
-      document.getElementById('contPendentes').textContent = pendentes;
-    }
-
-    // ─── UI: lista de alunos ─────────────────────────────────────────────────────
-    function renderLista(chamada) {
-      const container = document.getElementById('listaAlunos');
-      container.innerHTML = '';
-
-      if (chamada.registros.length === 0) {
-        container.innerHTML = `<div class="py-10 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado nesta categoria.</div>`;
-        document.getElementById('controlesGlobais').classList.add('hidden');
-        return;
-      }
-
-      document.getElementById('controlesGlobais').classList.remove('hidden');
-
-      chamada.registros.forEach((reg, index) => {
-        const aluno = state.alunos.find(a => a.id === reg.alunoId);
-        if (!aluno) return;
-
-        const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
-        const initials = getInitials(aluno.nome);
-
-        const btnPresenteBase = 'btn-attendance px-3 py-1.5 rounded-lg text-xs font-medium border focus:outline-none focus:ring-1';
-        const btnPresenteAtivo = 'border-imperial-green-mid bg-imperial-green-light text-imperial-green-mid';
-        const btnFaltaAtivo    = 'border-imperial-red bg-imperial-red-light text-imperial-red';
-        const btnNeutro        = 'border-imperial-border bg-imperial-card text-imperial-text-muted';
-
-        const isPres = reg.status === 'presente';
-        const isFalt = reg.status === 'falta';
-
-        const card = document.createElement('div');
-        card.className = 'bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3 flex items-center gap-3';
-        card.setAttribute('role', 'listitem');
-
-        card.innerHTML = `
-          <div class="avatar shrink-0" style="background-color: ${avatarColor};">${escapeHtml(initials)}</div>
-          <div class="flex-1 min-w-0">
-            <div class="font-medium text-imperial-text text-sm truncate">${escapeHtml(aluno.nome)}</div>
-          </div>
-          <div class="flex gap-2 shrink-0">
-            <button
-              type="button"
-              class="${btnPresenteBase} ${isPres ? btnPresenteAtivo : btnNeutro}"
-              data-aluno-id="${aluno.id}"
-              data-action="presente"
-              aria-pressed="${isPres}"
-            >Presente</button>
-            <button
-              type="button"
-              class="${btnPresenteBase} ${isFalt ? btnFaltaAtivo : btnNeutro}"
-              data-aluno-id="${aluno.id}"
-              data-action="falta"
-              aria-pressed="${isFalt}"
-            >Falta</button>
-          </div>
-        `;
-
-        // Attach button listeners
-        card.querySelectorAll('button[data-action]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const aId = btn.dataset.alunoId;
-            const action = btn.dataset.action;
-            setStatus(chamada, aId, action);
-            atualizarContadores(chamada);
-            renderLista(chamada);
-          });
-        });
-
-        container.appendChild(card);
-      });
-    }
-
-    // ─── UI: histórico ────────────────────────────────────────────────────────────
-    function renderHistorico(categoria, dataAtual) {
-      const secao = document.getElementById('secaoHistorico');
-      const lista = document.getElementById('listaHistorico');
-
-      const historico = state.chamadas
-        .filter(c => c.categoria === categoria && c.data !== dataAtual)
-        .sort((a, b) => b.data.localeCompare(a.data));
-
-      if (historico.length === 0) {
-        secao.classList.add('hidden');
-        return;
-      }
-
-      secao.classList.remove('hidden');
-      lista.innerHTML = historico.map(c => {
-        const { presentes, faltas, pendentes } = contarStatus(c);
-        const total = c.registros.length;
-        return `
-          <div class="bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3 flex items-center justify-between">
-            <div>
-              <div class="text-sm font-medium text-imperial-text">${formatDate(c.data)}</div>
-              <div class="text-xs text-imperial-text-muted mt-0.5">${total} aluno${total !== 1 ? 's' : ''}</div>
-            </div>
-            <div class="flex gap-2">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-green-light text-imperial-green-mid border border-imperial-green-mid">
-                ${presentes} pres.
-              </span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-red-light text-imperial-red border border-imperial-red">
-                ${faltas} falt.
-              </span>
-              ${pendentes > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-imperial-bg text-imperial-text-muted border border-imperial-border">${pendentes} pend.</span>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // ─── Core render ─────────────────────────────────────────────────────────────
+    // ─── UI State ────────────────────────────────────────────────────────────────
     let chamadaAtual = null;
-    let categoriaAtiva = null;
+    let treinoEditando = null;
     let momentosSelecionados = [];
     let principiosSelecionados = [];
 
@@ -506,46 +397,75 @@
       const chevron = document.getElementById('chamadaChevron');
       const header = document.getElementById('chamadaHeader');
       const isExpanded = !conteudo.classList.contains('hidden');
-
       conteudo.classList.toggle('hidden');
       chevron.classList.toggle('rotate-180');
       header.setAttribute('aria-expanded', String(!isExpanded));
-
-      // Show summary in header when collapsed
       atualizarChamadaResumo();
     }
 
     function atualizarChamadaResumo() {
       const resumo = document.getElementById('chamadaResumo');
       const conteudo = document.getElementById('chamadaConteudo');
-      const isCollapsed = conteudo.classList.contains('hidden');
-
-      if (!isCollapsed || !chamadaAtual) {
-        resumo.textContent = '';
-        return;
-      }
+      if (!conteudo.classList.contains('hidden') || !chamadaAtual) { resumo.textContent = ''; return; }
       const { presentes, faltas } = contarStatus(chamadaAtual);
       resumo.textContent = `${presentes} pres. · ${faltas} falt.`;
     }
 
-    // ─── UI: Especificações — Momentos ───────────────────────────────────────────
+    function atualizarContadores(chamada) {
+      const { presentes, faltas, pendentes } = contarStatus(chamada);
+      document.getElementById('contPresentes').textContent = presentes;
+      document.getElementById('contFaltas').textContent    = faltas;
+      document.getElementById('contPendentes').textContent = pendentes;
+    }
+
+    // ─── UI: lista de alunos (chamada) ───────────────────────────────────────────
+    function renderListaAlunos(chamada) {
+      const container = document.getElementById('listaAlunos');
+      container.innerHTML = '';
+      if (chamada.registros.length === 0) {
+        container.innerHTML = `<div class="py-10 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado nesta categoria.</div>`;
+        document.getElementById('controlesGlobais').classList.add('hidden');
+        return;
+      }
+      document.getElementById('controlesGlobais').classList.remove('hidden');
+      chamada.registros.forEach((reg, index) => {
+        const aluno = state.alunos.find(a => a.id === reg.alunoId);
+        if (!aluno) return;
+        const avatarColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
+        const initials = getInitials(aluno.nome);
+        const btnBase = 'btn-attendance px-3 py-1.5 rounded-lg text-xs font-medium border focus:outline-none focus:ring-1';
+        const isPres = reg.status === 'presente';
+        const isFalt = reg.status === 'falta';
+        const card = document.createElement('div');
+        card.className = 'bg-imperial-card rounded-xl shadow-sm border border-imperial-border px-4 py-3 flex items-center gap-3';
+        card.setAttribute('role', 'listitem');
+        card.innerHTML = `
+          <div class="avatar shrink-0" style="background-color: ${avatarColor};">${escapeHtml(initials)}</div>
+          <div class="flex-1 min-w-0"><div class="font-medium text-imperial-text text-sm truncate">${escapeHtml(aluno.nome)}</div></div>
+          <div class="flex gap-2 shrink-0">
+            <button type="button" class="${btnBase} ${isPres ? 'border-imperial-green-mid bg-imperial-green-light text-imperial-green-mid' : 'border-imperial-border bg-imperial-card text-imperial-text-muted'}" data-aluno-id="${aluno.id}" data-action="presente" aria-pressed="${isPres}">Presente</button>
+            <button type="button" class="${btnBase} ${isFalt ? 'border-imperial-red bg-imperial-red-light text-imperial-red' : 'border-imperial-border bg-imperial-card text-imperial-text-muted'}" data-aluno-id="${aluno.id}" data-action="falta" aria-pressed="${isFalt}">Falta</button>
+          </div>`;
+        card.querySelectorAll('button[data-action]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setStatus(chamada, btn.dataset.alunoId, btn.dataset.action);
+            atualizarContadores(chamada);
+            renderListaAlunos(chamada);
+          });
+        });
+        container.appendChild(card);
+      });
+    }
+
+    // ─── UI: Momentos ────────────────────────────────────────────────────────────
     function renderMomentos() {
       const container = document.getElementById('gridMomentos');
       container.innerHTML = MOMENTOS.map(m => {
         const sel = momentosSelecionados.includes(m.id);
-        return `
-          <button type="button"
-            class="momento-card text-left rounded-xl border p-3 transition-all ${sel ? 'border-imperial-green bg-imperial-green-light' : 'border-imperial-border bg-imperial-card hover:border-imperial-text-muted'}"
-            data-momento-id="${m.id}">
-            <div class="flex items-center gap-2 mb-1">
-              ${MOMENTOS_ICONS[m.id]}
-              <span class="text-sm font-semibold text-imperial-text">${m.label}</span>
-            </div>
-            <div class="text-xs text-imperial-text-muted leading-snug">${m.desc}</div>
-          </button>
-        `;
+        return `<button type="button" class="momento-card text-left rounded-xl border p-3 transition-all ${sel ? 'border-imperial-green bg-imperial-green-light' : 'border-imperial-border bg-imperial-card hover:border-imperial-text-muted'}" data-momento-id="${m.id}">
+          <div class="flex items-center gap-2 mb-1">${MOMENTOS_ICONS[m.id]}<span class="text-sm font-semibold text-imperial-text">${m.label}</span></div>
+          <div class="text-xs text-imperial-text-muted leading-snug">${m.desc}</div></button>`;
       }).join('');
-
       container.querySelectorAll('.momento-card').forEach(btn => {
         btn.addEventListener('click', () => {
           const id = btn.dataset.momentoId;
@@ -553,26 +473,30 @@
           if (idx >= 0) momentosSelecionados.splice(idx, 1);
           else momentosSelecionados.push(id);
           renderMomentos();
+          renderPrincipios();
         });
       });
     }
 
-    // ─── UI: Especificações — Princípios/Fundamentos ─────────────────────────────
+    // ─── UI: Princípios/Fundamentos (com filtro por momento) ─────────────────────
     function renderPrincipios() {
       const container = document.getElementById('listaPrincipios');
-      container.innerHTML = PRINCIPIOS_GRUPOS.map(grupo => {
+      const visiveis = getGruposVisiveis();
+
+      // Auto-desmarcar princípios de grupos ocultos
+      PRINCIPIOS_GRUPOS.forEach(grupo => {
+        if (!visiveis.has(grupo.filtro)) {
+          const idsDoGrupo = new Set(grupo.itens.map(i => i.id));
+          principiosSelecionados = principiosSelecionados.filter(id => !idsDoGrupo.has(id));
+        }
+      });
+
+      container.innerHTML = PRINCIPIOS_GRUPOS.filter(grupo => visiveis.has(grupo.filtro)).map(grupo => {
         const chips = grupo.itens.map(item => {
           const sel = principiosSelecionados.includes(item.id);
-          return `<button type="button"
-            class="principio-chip px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${sel ? 'border-imperial-green bg-imperial-green-light text-imperial-green' : 'border-imperial-border bg-imperial-bg text-imperial-text-muted hover:border-imperial-text-muted'}"
-            data-principio-id="${item.id}">${item.label}</button>`;
+          return `<button type="button" class="principio-chip px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${sel ? 'border-imperial-green bg-imperial-green-light text-imperial-green' : 'border-imperial-border bg-imperial-bg text-imperial-text-muted hover:border-imperial-text-muted'}" data-principio-id="${item.id}">${item.label}</button>`;
         }).join('');
-        return `
-          <div>
-            <h4 class="text-xs font-bold text-imperial-text-muted uppercase tracking-wide mb-2">${grupo.titulo}</h4>
-            <div class="flex flex-wrap gap-2">${chips}</div>
-          </div>
-        `;
+        return `<div><h4 class="text-xs font-bold text-imperial-text-muted uppercase tracking-wide mb-2">${grupo.titulo}</h4><div class="flex flex-wrap gap-2">${chips}</div></div>`;
       }).join('');
 
       container.querySelectorAll('.principio-chip').forEach(btn => {
@@ -585,146 +509,212 @@
         });
       });
 
-      document.getElementById('contadorPrincipios').textContent =
-        `${principiosSelecionados.length} selecionado(s)`;
+      document.getElementById('contadorPrincipios').textContent = `${principiosSelecionados.length} selecionado(s)`;
     }
 
-    function renderEspecificacoes() {
+    // ─── UI: Lista de treinos (tela principal) ───────────────────────────────────
+    function renderListaTreinos() {
+      treinoEditando = null;
+      chamadaAtual = null;
+      momentosSelecionados = [];
+      principiosSelecionados = [];
+      document.getElementById('secaoLista').classList.remove('hidden');
+      document.getElementById('secaoFormTreino').classList.add('hidden');
+
+      const sorted = [...state.chamadas].sort((a, b) => b.data.localeCompare(a.data));
+      const container = document.getElementById('listaTreinos');
+
+      if (sorted.length === 0) {
+        container.innerHTML = '<div class="py-14 text-center text-imperial-text-muted text-sm">Nenhum treino registrado ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = sorted.map(c => {
+        const { presentes } = contarStatus(c);
+        const total = c.registros.length;
+        const pfs = (c.principiosFundamentos || []).map(id => escapeHtml(getLabelPrincipio(id)));
+        const maxChips = 4;
+        const visibleChips = pfs.slice(0, maxChips);
+        const extraCount = pfs.length - maxChips;
+
+        return `
+          <div class="bg-imperial-card rounded-xl px-4 py-3 border border-imperial-border shadow-sm" role="listitem">
+            <div class="flex items-center justify-between mb-1">
+              <div class="font-semibold text-sm text-imperial-text">${formatDate(c.data)}</div>
+              <span class="px-2 py-0.5 rounded-full bg-imperial-green-light text-imperial-green border border-imperial-green text-xs font-medium">${CATEGORIAS_LABELS[c.categoria] || c.categoria}</span>
+            </div>
+            <div class="text-xs text-imperial-text-muted">${presentes} presente${presentes !== 1 ? 's' : ''} de ${total} aluno${total !== 1 ? 's' : ''}</div>
+            ${pfs.length > 0 ? `<div class="flex flex-wrap gap-1 mt-2">${visibleChips.map(l => `<span class="px-2 py-0.5 rounded-full text-xs bg-imperial-bg border border-imperial-border text-imperial-text-muted">${l}</span>`).join('')}${extraCount > 0 ? `<span class="px-2 py-0.5 rounded-full text-xs bg-imperial-bg border border-imperial-border text-imperial-text-muted">+${extraCount}</span>` : ''}</div>` : ''}
+            <div class="flex gap-2 mt-2 justify-end">
+              <button type="button" class="btn-editar-treino px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted transition-all" data-treino-id="${escapeHtml(c.id)}">Editar</button>
+              <button type="button" class="btn-excluir-treino px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-red/30 text-imperial-red hover:bg-imperial-red-light transition-all" data-treino-id="${escapeHtml(c.id)}">Excluir</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Delegated events
+      container.querySelectorAll('.btn-editar-treino').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const treino = state.chamadas.find(c => c.id === btn.dataset.treinoId);
+          if (treino) renderFormTreino(treino);
+        });
+      });
+      container.querySelectorAll('.btn-excluir-treino').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (window.confirm('Excluir este treino? Esta ação não pode ser desfeita.')) {
+            deleteTreino(btn.dataset.treinoId);
+            renderListaTreinos();
+            showToast('Treino excluído.', 'error');
+          }
+        });
+      });
+    }
+
+    // ─── UI: Formulário de treino ────────────────────────────────────────────────
+    function renderFormTreino(chamada) {
+      document.getElementById('secaoLista').classList.add('hidden');
+      document.getElementById('secaoFormTreino').classList.remove('hidden');
+
+      const inputData = document.getElementById('inputDataTreino');
+      const selectCat = document.getElementById('selectCategoriaTreino');
+      const erroData = document.getElementById('erroDataTreino');
+      const erroCat = document.getElementById('erroCategoriaTreino');
+      erroData.classList.add('hidden');
+      erroCat.classList.add('hidden');
+
+      if (chamada) {
+        treinoEditando = chamada;
+        document.getElementById('tituloFormTreino').textContent = 'Editar Treino';
+        inputData.value = chamada.data;
+        selectCat.value = chamada.categoria;
+        inputData.disabled = true;
+        selectCat.disabled = true;
+        momentosSelecionados = [...(chamada.momentos || [])];
+        principiosSelecionados = [...(chamada.principiosFundamentos || [])];
+        chamadaAtual = chamada;
+        carregarChamadaForm();
+      } else {
+        treinoEditando = null;
+        document.getElementById('tituloFormTreino').textContent = 'Novo Treino';
+        inputData.value = todayISO();
+        selectCat.value = '';
+        inputData.disabled = false;
+        selectCat.disabled = false;
+        momentosSelecionados = [];
+        principiosSelecionados = [];
+        chamadaAtual = null;
+        document.getElementById('chamadaContainer').classList.add('hidden');
+        document.getElementById('secaoEspecificacoes').classList.add('hidden');
+      }
+    }
+
+    function carregarChamadaForm() {
+      const data = document.getElementById('inputDataTreino').value;
+      const categoria = document.getElementById('selectCategoriaTreino').value;
+
+      if (!data || !categoria) {
+        document.getElementById('chamadaContainer').classList.add('hidden');
+        document.getElementById('secaoEspecificacoes').classList.add('hidden');
+        return;
+      }
+
+      if (treinoEditando) {
+        chamadaAtual = treinoEditando;
+      } else {
+        chamadaAtual = getOrCreateChamada(data, categoria);
+      }
+
+      // Show chamada accordion
+      document.getElementById('chamadaContainer').classList.remove('hidden');
+      document.getElementById('tituloCategoria').textContent =
+        `${CATEGORIAS_LABELS[categoria]} — ${chamadaAtual.registros.length} aluno${chamadaAtual.registros.length !== 1 ? 's' : ''}`;
+      document.getElementById('painelResumo').classList.remove('hidden');
+      atualizarContadores(chamadaAtual);
+      renderListaAlunos(chamadaAtual);
+      atualizarChamadaResumo();
+
+      // Show especificações
       document.getElementById('secaoEspecificacoes').classList.remove('hidden');
-      momentosSelecionados = [...(chamadaAtual.momentos || [])];
-      principiosSelecionados = [...(chamadaAtual.principiosFundamentos || [])];
       renderMomentos();
       renderPrincipios();
     }
 
-    // ─── Core render ─────────────────────────────────────────────────────────────
-    function renderChamada() {
-      const data = document.getElementById('inputData').value;
-      const erroData = document.getElementById('erroData');
+    // ─── Events ──────────────────────────────────────────────────────────────────
+    document.getElementById('btnNovoTreino').addEventListener('click', () => renderFormTreino(null));
+    document.getElementById('btnCancelarFormTreino').addEventListener('click', () => renderListaTreinos());
+    document.getElementById('chamadaHeader').addEventListener('click', toggleChamada);
 
-      // Validate date
-      erroData.classList.add('hidden');
-      if (!data) {
-        ocultarConteudo();
-        return;
-      }
-      if (data > todayISO()) {
-        erroData.textContent = 'A data do treino não pode ser no futuro.';
-        erroData.classList.remove('hidden');
-        ocultarConteudo();
-        return;
-      }
-
-      if (!categoriaAtiva) {
-        ocultarConteudo();
-        return;
-      }
-
-      chamadaAtual = getOrCreateChamada(data, categoriaAtiva);
-
-      // Show accordion container
-      document.getElementById('chamadaContainer').classList.remove('hidden');
-
-      // Update panel title
-      document.getElementById('tituloCategoria').textContent =
-        `${CATEGORIAS_LABELS[categoriaAtiva]} — ${chamadaAtual.registros.length} aluno${chamadaAtual.registros.length !== 1 ? 's' : ''}`;
-
-      document.getElementById('painelResumo').classList.remove('hidden');
-      atualizarContadores(chamadaAtual);
-      renderLista(chamadaAtual);
-      renderHistorico(categoriaAtiva, data);
-      atualizarChamadaResumo();
-
-      // Show save button and specs
-      document.getElementById('containerSalvar').classList.remove('hidden');
-      renderEspecificacoes();
-    }
-
-    function ocultarConteudo() {
-      document.getElementById('chamadaContainer').classList.add('hidden');
-      document.getElementById('painelResumo').classList.add('hidden');
-      document.getElementById('controlesGlobais').classList.add('hidden');
-      document.getElementById('containerSalvar').classList.add('hidden');
-      document.getElementById('listaAlunos').innerHTML = '';
-      document.getElementById('secaoHistorico').classList.add('hidden');
-      document.getElementById('secaoEspecificacoes').classList.add('hidden');
-      chamadaAtual = null;
-      momentosSelecionados = [];
-      principiosSelecionados = [];
-    }
-
-    // ─── Build category tabs ──────────────────────────────────────────────────────
-    function initAbas() {
-      const container = document.getElementById('abas');
-      CATEGORIAS.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'tab-btn shrink-0 px-4 py-1.5 rounded-full text-sm font-medium border border-imperial-border bg-imperial-bg text-imperial-text-muted focus:outline-none focus:ring-2 focus:ring-imperial-green btn-attendance';
-        btn.textContent = CATEGORIAS_LABELS[cat];
-        btn.dataset.categoria = cat;
-        btn.setAttribute('role', 'tab');
-        btn.setAttribute('aria-selected', 'false');
-
-        btn.addEventListener('click', () => {
-          // Deactivate all
-          container.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('tab-active');
-            b.setAttribute('aria-selected', 'false');
-          });
-          // Activate clicked
-          btn.classList.add('tab-active');
-          btn.setAttribute('aria-selected', 'true');
-          categoriaAtiva = cat;
-          renderChamada();
-        });
-
-        container.appendChild(btn);
-      });
-    }
-
-    // ─── "Todos presentes" / "Todos ausentes" ────────────────────────────────────
     document.getElementById('btnTodosPresentes').addEventListener('click', () => {
       if (!chamadaAtual) return;
       chamadaAtual.registros.forEach(r => { r.status = 'presente'; });
       atualizarContadores(chamadaAtual);
-      renderLista(chamadaAtual);
+      renderListaAlunos(chamadaAtual);
     });
 
     document.getElementById('btnTodosAusentes').addEventListener('click', () => {
       if (!chamadaAtual) return;
       chamadaAtual.registros.forEach(r => { r.status = 'falta'; });
       atualizarContadores(chamadaAtual);
-      renderLista(chamadaAtual);
+      renderListaAlunos(chamadaAtual);
     });
 
-    // ─── Accordion da chamada ────────────────────────────────────────────────────
-    document.getElementById('chamadaHeader').addEventListener('click', toggleChamada);
+    document.getElementById('inputDataTreino').addEventListener('change', () => {
+      if (!treinoEditando) carregarChamadaForm();
+    });
+    document.getElementById('selectCategoriaTreino').addEventListener('change', () => {
+      if (!treinoEditando) carregarChamadaForm();
+    });
 
-    // ─── Salvar ───────────────────────────────────────────────────────────────────
-    document.getElementById('btnSalvar').addEventListener('click', () => {
-      if (!chamadaAtual) return;
-      // Persist specs along with attendance
+    document.getElementById('btnSalvarTreino').addEventListener('click', () => {
+      const erroData = document.getElementById('erroDataTreino');
+      const erroCat = document.getElementById('erroCategoriaTreino');
+      erroData.classList.add('hidden');
+      erroCat.classList.add('hidden');
+
+      const data = document.getElementById('inputDataTreino').value;
+      const categoria = document.getElementById('selectCategoriaTreino').value;
+
+      let valid = true;
+      if (!data) {
+        erroData.textContent = 'Data é obrigatória.';
+        erroData.classList.remove('hidden');
+        document.getElementById('inputDataTreino').focus();
+        valid = false;
+      }
+      if (!categoria) {
+        erroCat.textContent = 'Categoria é obrigatória.';
+        erroCat.classList.remove('hidden');
+        if (valid) document.getElementById('selectCategoriaTreino').focus();
+        valid = false;
+      }
+      if (!valid) return;
+
+      if (!chamadaAtual) {
+        chamadaAtual = getOrCreateChamada(data, categoria);
+      }
+
       chamadaAtual.momentos = [...momentosSelecionados];
       chamadaAtual.principiosFundamentos = [...principiosSelecionados];
+
+      const isEditing = !!treinoEditando;
       salvarChamada(chamadaAtual);
-      // Refresh histórico after save
-      renderHistorico(categoriaAtiva, chamadaAtual.data);
+      renderListaTreinos();
+      showToast(isEditing ? 'Treino atualizado com sucesso!' : 'Treino salvo com sucesso!');
     });
 
-    // ─── Date input listener ──────────────────────────────────────────────────────
-    document.getElementById('inputData').addEventListener('change', renderChamada);
+    // ─── Boot ────────────────────────────────────────────────────────────────────
+    // Populate category select
+    const selCat = document.getElementById('selectCategoriaTreino');
+    CATEGORIAS.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = CATEGORIAS_LABELS[cat];
+      selCat.appendChild(opt);
+    });
 
-    // ─── Boot ─────────────────────────────────────────────────────────────────────
-    // Set max date to today
-    document.getElementById('inputData').max = todayISO();
-    // Default to today
-    document.getElementById('inputData').value = todayISO();
+    document.getElementById('inputDataTreino').max = todayISO();
 
-    initAbas();
-
-    // Auto-select first category
-    const firstTab = document.querySelector('.tab-btn');
-    if (firstTab) firstTab.click();
+    renderListaTreinos();
   </script>
 
 </body>
