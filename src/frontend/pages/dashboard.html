@@ -196,6 +196,17 @@
           <ul id="listaHistoricoJogos" class="divide-y divide-imperial-border" role="list"></ul>
         </section>
 
+        <!-- Evolução Técnico-Tática-Mental -->
+        <section id="secaoEvolucaoAluno" class="bg-imperial-card rounded-xl border border-imperial-border p-4 shadow-sm">
+          <h3 class="text-sm font-semibold text-imperial-text mb-3">Evolução Técnico-Tática-Mental</h3>
+          <div class="relative h-56">
+            <canvas id="canvasEvolucaoAluno" aria-label="Gráfico de evolução técnico-tática-mental do aluno" role="img"></canvas>
+            <p id="emptyEvolucaoAluno" class="hidden absolute inset-0 flex items-center justify-center text-xs text-imperial-text-muted text-center px-4">
+              Nenhuma avaliação registrada.
+            </p>
+          </div>
+        </section>
+
       </div>
 
     </section>
@@ -335,6 +346,7 @@
     let alunoSelecionado     = null;
     let chartVolumeAluno     = null;
     let chartMinutagem       = null;
+    let chartEvolucaoAluno   = null;
 
     // ─── Utilities ───────────────────────────────────────────────────────────
     function formatDate(isoDate) {
@@ -897,12 +909,19 @@
         minutos: minutosFor(jogo),
       }));
 
+      const avaliacoesRecentes = state.avaliacoes
+        .filter(av => av.alunoId === aluno.id)
+        .sort((a, b) => b.data.localeCompare(a.data))
+        .slice(0, 6)
+        .reverse();
+
       return {
         aluno: { id: aluno.id, nome: aluno.nome, categoria: aluno.categoria, iniciais, categoriaLabel },
         presencas, convocacoes, frequenciaPct, totalItens,
         volumePorMomento, principiosAbsorvidos,
         jogosDisputados, minutosTotal, mediaPorJogo,
         minutagemSeries, historicoJogos,
+        avaliacoesRecentes,
       };
     }
 
@@ -1011,8 +1030,9 @@
       document.getElementById('cabecalhoAluno').classList.add('hidden');
       document.getElementById('blocosAluno').classList.add('hidden');
       document.getElementById('placeholderAluno').classList.remove('hidden');
-      if (chartVolumeAluno) { chartVolumeAluno.destroy(); chartVolumeAluno = null; }
-      if (chartMinutagem)   { chartMinutagem.destroy();   chartMinutagem = null; }
+      if (chartVolumeAluno)     { chartVolumeAluno.destroy();     chartVolumeAluno = null; }
+      if (chartMinutagem)       { chartMinutagem.destroy();       chartMinutagem = null; }
+      if (chartEvolucaoAluno)   { chartEvolucaoAluno.destroy();   chartEvolucaoAluno = null; }
     }
 
     // ─── Render: Cards de Resumo de Treinos (Aluno) ──────────────────────────
@@ -1189,6 +1209,83 @@
       `).join('');
     }
 
+    // ─── Render: Evolução Técnico-Tática-Mental — Aluno ─────────────────────
+    function renderEvolucaoAluno(data) {
+      const canvas      = document.getElementById('canvasEvolucaoAluno');
+      const placeholder = document.getElementById('emptyEvolucaoAluno');
+      const avs         = data.avaliacoesRecentes;
+
+      if (chartEvolucaoAluno) { chartEvolucaoAluno.destroy(); chartEvolucaoAluno = null; }
+
+      if (avs.length === 0) {
+        canvas.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        return;
+      }
+
+      canvas.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+
+      const labels = avs.map(av => formatDate(av.data));
+      chartEvolucaoAluno = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Tático',
+              data: avs.map(av => av.tatico),
+              borderColor: '#eab308',
+              backgroundColor: 'rgba(234,179,8,0.08)',
+              tension: 0.3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: false,
+            },
+            {
+              label: 'Técnico',
+              data: avs.map(av => av.tecnico),
+              borderColor: '#2a7a3d',
+              backgroundColor: 'rgba(42,122,61,0.08)',
+              tension: 0.3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: false,
+            },
+            {
+              label: 'Mental',
+              data: avs.map(av => av.mental),
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.08)',
+              tension: 0.3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { size: 13 } } },
+          },
+          scales: {
+            x: {
+              ticks: { color: '#6b7280' },
+              grid: { color: '#e5e7eb' },
+            },
+            y: {
+              min: 2,
+              max: 5,
+              ticks: { stepSize: 1, color: '#6b7280' },
+              grid: { color: '#e5e7eb' },
+            },
+          },
+        },
+      });
+    }
+
     // ─── Pipeline da aba Alunos ──────────────────────────────────────────────
     function refreshAluno() {
       if (alunoSelecionado === null) {
@@ -1211,6 +1308,7 @@
       renderResumoJogos(data);
       renderMinutagemChart(data);
       renderHistoricoJogos(data);
+      renderEvolucaoAluno(data);
     }
 
     // ─── Inicialização da aba Alunos (idempotente) ───────────────────────────

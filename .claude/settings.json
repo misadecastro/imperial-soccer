@@ -16,7 +16,8 @@
       "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly)",
       "Bash(del \"src\\\\frontend\\\\pages\\\\dashboard-treinos.html\")",
       "Bash(powershell -Command \"\\(Get-Content 'src/frontend/pages/dashboard.html'\\).Count\")",
-      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Vamos fazer uma melhoria na p�gina Games, na op��o de adicionar alunos, adicione uma op��o de selecionar todos na lista de alunos\" -Json -ShortName \"select-all-students\")"
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Vamos fazer uma melhoria na p�gina Games, na op��o de adicionar alunos, adicione uma op��o de selecionar todos na lista de alunos\" -Json -ShortName \"select-all-students\")",
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"adicione ao dashboard do aluno o grafico de evolu��o com as 6 ultimas avalia��es do aluno nas dimens�es tatico, tecnico e mental\" -Json -ShortName \"student-eval-chart\" \"Add Student Evolution Chart\")"
     ],
     "additionalDirectories": [
       "\\tmp",

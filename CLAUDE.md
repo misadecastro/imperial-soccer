@@ -24,6 +24,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-03
 - `sessionStorage` chave `imperialState` — leitura apenas (`state.alunos[]`, `state.chamadas[]`, `state.jogos[]`); reutiliza esquemas existentes das features 002/003/006/007/008/009/010 sem alteração (012-student-dashboard)
 - HTML5 + JavaScript ES Modules (navegadores 2023+); Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 (CDN) — nenhuma dependência nova (013-select-all-students)
 - `sessionStorage` chave `imperialState` — apenas leitura de `state.alunos[]` e leitura/escrita de `state.jogos[]` (sem alteração de esquema; reaproveita tudo da feature 008) (013-select-all-students)
+- JavaScript ES2020+ (ES Modules), HTML5 + Chart.js v4 via CDN (já incluso em `dashboard.html` linha 9), Tailwind CSS v3 via CDN (014-student-eval-chart)
+- `sessionStorage` chave `imperialState` — leitura apenas de `state.avaliacoes[]`; sem escrita (014-student-eval-chart)
 
 - HTML5 + JavaScript ES Modules (navegadores modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (001-home-login-page)
 
@@ -44,9 +46,9 @@ npm test; npm run lint
 HTML5 + JavaScript ES Modules (navegadores modernos 2023+): Follow standard conventions
 
 ## Recent Changes
+- 014-student-eval-chart: Added JavaScript ES2020+ (ES Modules), HTML5 + Chart.js v4 via CDN (já incluso em `dashboard.html` linha 9), Tailwind CSS v3 via CDN
 - 013-select-all-students: Added HTML5 + JavaScript ES Modules (navegadores 2023+); Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 (CDN) — nenhuma dependência nova
 - 012-student-dashboard: Added HTML5 + JavaScript ES Modules (navegadores 2023+); Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 (CDN), Chart.js v4 (CDN — `https://cdn.jsdelivr.net/npm/chart.js`) já em uso em `dashboard-treinos.html` e `student-eval.html`
-- 011-training-dashboard: Added HTML5 + JavaScript ES Modules (navegadores 2023+); Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`); `imperial.css` (feature 006); sem frameworks JS + Tailwind CSS v3 via CDN, Chart.js v4 via CDN (`https://cdn.jsdelivr.net/npm/chart.js`) — já utilizado em `student-eval.html`
 
 
 <!-- MANUAL ADDITIONS START -->
