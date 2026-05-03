@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 -Json -ShortName \"training-dashboard\" \"Dashboard de Treinos: visualiza��o de volume e conte�do trabalhado por categoria, com filtros, cards de resumo, gr�ficos de volume por momento e distribui��o por categoria, top princ�pios/fundamentos e lista de sess�es recentes \\(mock data\\).\")",
+      "PowerShell(.specify/scripts/powershell/setup-plan.ps1 -Json)",
+      "PowerShell(.specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
+      "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json)",
+      "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(node --check src/frontend/pages/dashboard-treinos.html)",
+      "Bash(node -e ' *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}
