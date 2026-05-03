@@ -7,7 +7,15 @@
       "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json)",
       "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
       "Bash(node --check src/frontend/pages/dashboard-treinos.html)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(ls .specify/extensions.yml)",
+      "Bash(ls .specify/init-options.json)",
+      "Bash(ls designer/dashboard-aluno.png)",
+      "Bash(ls frontend/)",
+      "Bash(ls specs/)",
+      "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly)",
+      "Bash(del \"src\\\\frontend\\\\pages\\\\dashboard-treinos.html\")",
+      "Bash(powershell -Command \"\\(Get-Content 'src/frontend/pages/dashboard.html'\\).Count\")"
     ],
     "additionalDirectories": [
       "\\tmp"
