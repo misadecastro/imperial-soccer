@@ -140,6 +140,18 @@
                 <option value="">Todas as categorias</option>
               </select>
             </div>
+            <div id="cabecalhoSelecionarTodos" class="flex items-center gap-3 px-3 py-2 border-b border-imperial-border">
+              <input
+                type="checkbox"
+                id="checkSelecionarTodos"
+                class="w-4 h-4 rounded"
+                aria-controls="listaSeletorAlunos"
+              />
+              <label
+                for="checkSelecionarTodos"
+                class="text-sm font-medium text-imperial-text cursor-pointer select-none"
+              >Selecionar todos</label>
+            </div>
             <div id="listaSeletorAlunos" class="space-y-1 max-h-52 overflow-y-auto"></div>
             <button
               type="button"
@@ -329,14 +341,17 @@
       const idsJaAdicionados = new Set(participacoesAtual.map(p => p.alunoId));
       const listaSeletor = document.getElementById('listaSeletorAlunos');
       const btnConfirmar = document.getElementById('btnConfirmarSelecao');
+      const cabecalhoTodos = document.getElementById('cabecalhoSelecionarTodos');
 
       if (state.alunos.length === 0) {
         listaSeletor.innerHTML = '<div class="py-6 text-center text-imperial-text-muted text-sm">Nenhum aluno cadastrado no sistema.</div>';
         btnConfirmar.classList.add('hidden');
+        cabecalhoTodos.classList.add('hidden');
         return;
       }
 
       btnConfirmar.classList.remove('hidden');
+      cabecalhoTodos.classList.remove('hidden');
 
       const filtrados = state.alunos.filter(a => {
         const matchNome = !filtroNome || a.nome.toLowerCase().includes(filtroNome);
@@ -346,6 +361,7 @@
 
       if (filtrados.length === 0) {
         listaSeletor.innerHTML = '<div class="py-4 text-center text-imperial-text-muted text-sm">Nenhum aluno encontrado.</div>';
+        syncSelecionarTodosState();
         return;
       }
 
@@ -369,6 +385,42 @@
           </label>
         `;
       }).join('');
+
+      syncSelecionarTodosState();
+    }
+
+    function syncSelecionarTodosState() {
+      const checkTodos = document.getElementById('checkSelecionarTodos');
+      const elegiveis = document.querySelectorAll('#listaSeletorAlunos .aluno-check:not(:disabled)');
+      const total = elegiveis.length;
+      let marcados = 0;
+      elegiveis.forEach(c => { if (c.checked) marcados++; });
+
+      if (total === 0) {
+        checkTodos.checked = false;
+        checkTodos.indeterminate = false;
+        checkTodos.disabled = true;
+      } else if (marcados === 0) {
+        checkTodos.checked = false;
+        checkTodos.indeterminate = false;
+        checkTodos.disabled = false;
+      } else if (marcados === total) {
+        checkTodos.checked = true;
+        checkTodos.indeterminate = false;
+        checkTodos.disabled = false;
+      } else {
+        checkTodos.checked = false;
+        checkTodos.indeterminate = true;
+        checkTodos.disabled = false;
+      }
+    }
+
+    function onSelecionarTodosChange(e) {
+      const marcar = e.target.checked;
+      document.querySelectorAll('#listaSeletorAlunos .aluno-check:not(:disabled)').forEach(c => {
+        c.checked = marcar;
+      });
+      syncSelecionarTodosState();
     }
 
     // ─── Render: participações ───────────────────────────────────────────────────
@@ -529,6 +581,11 @@
 
     document.getElementById('filtroNomeSeletor').addEventListener('input', renderSeletorAlunos);
     document.getElementById('filtroCategoriaSeletor').addEventListener('change', renderSeletorAlunos);
+
+    document.getElementById('checkSelecionarTodos').addEventListener('change', onSelecionarTodosChange);
+    document.getElementById('listaSeletorAlunos').addEventListener('change', e => {
+      if (e.target.classList.contains('aluno-check')) syncSelecionarTodosState();
+    });
 
     document.getElementById('btnConfirmarSelecao').addEventListener('click', () => {
       const checks = document.querySelectorAll('.aluno-check:checked');

@@ -15,10 +15,12 @@
       "Bash(ls specs/)",
       "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly)",
       "Bash(del \"src\\\\frontend\\\\pages\\\\dashboard-treinos.html\")",
-      "Bash(powershell -Command \"\\(Get-Content 'src/frontend/pages/dashboard.html'\\).Count\")"
+      "Bash(powershell -Command \"\\(Get-Content 'src/frontend/pages/dashboard.html'\\).Count\")",
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Vamos fazer uma melhoria na p�gina Games, na op��o de adicionar alunos, adicione uma op��o de selecionar todos na lista de alunos\" -Json -ShortName \"select-all-students\")"
     ],
     "additionalDirectories": [
-      "\\tmp"
+      "\\tmp",
+      "d:\\Projetos\\Nova pasta\\imperial-soccer"
     ]
   }
 }
