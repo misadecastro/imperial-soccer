@@ -1,0 +1,6 @@
+<div class="relative h-56">
+  <canvas #canvas class="w-full" aria-label="Gráfico de evolução técnico-tática-mental" role="img" [class.hidden]="avaliacoes.length === 0"></canvas>
+  <p *ngIf="avaliacoes.length === 0" class="absolute inset-0 flex items-center justify-center text-xs text-imperial-text-muted text-center px-4">
+    {{ emptyMessage }}
+  </p>
+</div>

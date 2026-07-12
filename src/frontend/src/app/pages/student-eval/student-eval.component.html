@@ -1,0 +1,401 @@
+<div *ngIf="aluno" class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-16">
+
+  <!-- Header -->
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+        <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke="currentColor" stroke-width="1" fill="none"/>
+        <path d="M2 12 L22 12" stroke="currentColor" stroke-width="1" fill="none"/>
+      </svg>
+      <div>
+        <div class="text-base font-bold text-white leading-tight">Imperial Soccer</div>
+        <div class="text-xs text-white/70">Avaliação do Aluno</div>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="voltarParaAlunos()"
+      class="inline-flex items-center gap-1 text-sm font-medium text-white/80 hover:text-white transition-colors"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+      </svg>
+      Voltar
+    </button>
+  </header>
+
+  <!-- Toast notification -->
+  <div
+    *ngIf="toast"
+    class="fixed top-6 right-6 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none text-white"
+    [class.bg-imperial-green]="toast.type === 'success'"
+    [class.bg-imperial-red]="toast.type === 'error'"
+    role="status"
+    aria-live="polite"
+  >{{ toast.message }}</div>
+
+  <!-- Main -->
+  <main class="flex-1 w-full max-w-2xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- Student info + Nova Avaliação button -->
+    <section aria-labelledby="tituloAluno">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 id="tituloAluno" class="text-xl font-bold text-imperial-text">{{ aluno.nome }}</h1>
+          <p class="text-sm text-imperial-text-muted mt-1">{{ categoriasLabels[aluno.categoria] || aluno.categoria }}</p>
+        </div>
+        <button
+          type="button"
+          [disabled]="mostrarFormulario"
+          [class.opacity-50]="mostrarFormulario"
+          [class.cursor-not-allowed]="mostrarFormulario"
+          (click)="toggleFormulario()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2 shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Nova Avaliação
+        </button>
+      </div>
+    </section>
+
+    <!-- New evaluation form (hidden by default) -->
+    <section *ngIf="mostrarFormulario" aria-labelledby="tituloNovaAvaliacao">
+      <h2 id="tituloNovaAvaliacao" class="text-lg font-bold text-imperial-text mb-4">Nova Avaliação</h2>
+      <form class="bg-imperial-card rounded-2xl p-5 space-y-5 border border-imperial-border shadow-sm" novalidate (ngSubmit)="submitNovaAvaliacao()">
+
+        <!-- Data -->
+        <div>
+          <label for="inputDataAvaliacao" class="block text-sm font-medium text-imperial-text mb-1">
+            Data de Realização <span class="text-imperial-red">*</span>
+          </label>
+          <input
+            type="date"
+            id="inputDataAvaliacao"
+            name="novaData"
+            [(ngModel)]="novaData"
+            [max]="hoje"
+            class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+          />
+          <p *ngIf="errosNovo.data" class="mt-1 text-xs text-imperial-red" role="alert">{{ errosNovo.data }}</p>
+        </div>
+
+        <!-- Tático -->
+        <fieldset>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Tático</legend>
+          <p *ngIf="errosNovo.tatico" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosNovo.tatico }}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label
+              *ngFor="let opt of notas"
+              class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+              [class.border-imperial-green]="novoTatico === opt.valor"
+              [class.bg-imperial-green-light]="novoTatico === opt.valor"
+              [class.text-imperial-green]="novoTatico === opt.valor"
+              [class.border-imperial-border]="novoTatico !== opt.valor"
+              [class.text-imperial-text-muted]="novoTatico !== opt.valor"
+            >
+              <input type="radio" name="novoTatico" [value]="opt.valor" [(ngModel)]="novoTatico" class="sr-only" />
+              <span class="font-bold text-sm">{{ opt.valor }}</span>
+              <span class="leading-tight">{{ opt.label }}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Técnico -->
+        <fieldset>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Técnico</legend>
+          <p *ngIf="errosNovo.tecnico" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosNovo.tecnico }}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label
+              *ngFor="let opt of notas"
+              class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+              [class.border-imperial-green]="novoTecnico === opt.valor"
+              [class.bg-imperial-green-light]="novoTecnico === opt.valor"
+              [class.text-imperial-green]="novoTecnico === opt.valor"
+              [class.border-imperial-border]="novoTecnico !== opt.valor"
+              [class.text-imperial-text-muted]="novoTecnico !== opt.valor"
+            >
+              <input type="radio" name="novoTecnico" [value]="opt.valor" [(ngModel)]="novoTecnico" class="sr-only" />
+              <span class="font-bold text-sm">{{ opt.valor }}</span>
+              <span class="leading-tight">{{ opt.label }}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Mental -->
+        <fieldset>
+          <legend class="text-sm font-semibold text-imperial-text mb-2">Mental</legend>
+          <p *ngIf="errosNovo.mental" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosNovo.mental }}</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label
+              *ngFor="let opt of notas"
+              class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+              [class.border-imperial-green]="novoMental === opt.valor"
+              [class.bg-imperial-green-light]="novoMental === opt.valor"
+              [class.text-imperial-green]="novoMental === opt.valor"
+              [class.border-imperial-border]="novoMental !== opt.valor"
+              [class.text-imperial-text-muted]="novoMental !== opt.valor"
+            >
+              <input type="radio" name="novoMental" [value]="opt.valor" [(ngModel)]="novoMental" class="sr-only" />
+              <span class="font-bold text-sm">{{ opt.valor }}</span>
+              <span class="leading-tight">{{ opt.label }}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Actions -->
+        <div class="pt-1 flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+          >
+            Salvar Avaliação
+          </button>
+          <button
+            type="button"
+            (click)="cancelarNovaAvaliacao()"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl border border-imperial-border text-imperial-text-muted hover:text-imperial-text font-medium transition-all"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Chart section -->
+    <section aria-labelledby="tituloGrafico">
+      <h2 id="tituloGrafico" class="text-lg font-bold text-imperial-text mb-4">Evolução do Aluno</h2>
+      <div class="bg-imperial-card rounded-2xl p-4 border border-imperial-border shadow-sm">
+        <app-evolution-chart
+          [avaliacoes]="todasAvaliacoes"
+          [formatLabel]="formatDate"
+          emptyMessage="Registre avaliações para visualizar o gráfico de evolução."
+        ></app-evolution-chart>
+      </div>
+    </section>
+
+    <!-- Evaluation list -->
+    <section aria-labelledby="tituloHistorico">
+      <h2 id="tituloHistorico" class="text-lg font-bold text-imperial-text mb-4">Histórico de Avaliações</h2>
+
+      <div class="space-y-2" role="list" aria-live="polite">
+        <app-empty-state *ngIf="todasAvaliacoes.length === 0" message="Nenhuma avaliação registrada ainda."></app-empty-state>
+
+        <div
+          *ngFor="let av of avaliacoesPagina"
+          class="bg-imperial-card rounded-xl px-5 py-4 border border-imperial-border shadow-sm"
+          role="listitem"
+        >
+          <!-- Display mode -->
+          <div *ngIf="editandoId !== av.id" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="space-y-2">
+              <div class="text-sm font-semibold text-imperial-text">{{ formatDate(av.data) }}</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-imperial-green-light text-imperial-green border-imperial-green">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linejoin="round" d="M12 2 L22 12 L12 22 L2 12 Z"/>
+                    <path stroke-linejoin="round" stroke-width="1" d="M12 6 L18 12 L12 18 L6 12 Z"/>
+                  </svg>
+                  <span>Tát</span><span class="font-bold">{{ av.tatico }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-imperial-green-light text-imperial-green border-imperial-green">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke-width="1"/>
+                    <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke-width="1"/>
+                    <path d="M2 12 L22 12" stroke-width="1"/>
+                  </svg>
+                  <span>Téc</span><span class="font-bold">{{ av.tecnico }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-imperial-green-light text-imperial-green border-imperial-green">
+                  <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 21h6"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-4"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9.2 3 7 5.2 7 8c0 2.2 1.3 4.1 3.2 5l-.2 4h4l-.2-4C15.7 12.1 17 10.2 17 8c0-2.8-2.2-5-5-5z"/>
+                  </svg>
+                  <span>Ment</span><span class="font-bold">{{ av.mental }}</span>
+                </span>
+              </div>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button
+                type="button"
+                (click)="iniciarEdicao(av)"
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted transition-all"
+                [attr.aria-label]="'Editar avaliação de ' + formatDate(av.data)"
+              >Editar</button>
+              <button
+                type="button"
+                (click)="excluirAvaliacao(av.id)"
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-red/30 text-imperial-red hover:bg-imperial-red-light transition-all"
+                [attr.aria-label]="'Excluir avaliação de ' + formatDate(av.data)"
+              >Excluir</button>
+            </div>
+          </div>
+
+          <!-- Edit mode -->
+          <div *ngIf="editandoId === av.id" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-imperial-text mb-1">Data de Realização</label>
+              <input
+                type="date"
+                [(ngModel)]="editData"
+                [max]="hoje"
+                class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+              />
+              <p *ngIf="errosEdit.data" class="mt-1 text-xs text-imperial-red" role="alert">{{ errosEdit.data }}</p>
+            </div>
+            <fieldset>
+              <legend class="text-sm font-semibold text-imperial-text mb-2">Tático</legend>
+              <p *ngIf="errosEdit.tatico" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosEdit.tatico }}</p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label
+                  *ngFor="let opt of notas"
+                  class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+                  [class.border-imperial-green]="editTatico === opt.valor"
+                  [class.bg-imperial-green-light]="editTatico === opt.valor"
+                  [class.text-imperial-green]="editTatico === opt.valor"
+                  [class.border-imperial-border]="editTatico !== opt.valor"
+                  [class.text-imperial-text-muted]="editTatico !== opt.valor"
+                >
+                  <input type="radio" [name]="'editTatico_' + av.id" [value]="opt.valor" [(ngModel)]="editTatico" class="sr-only" />
+                  <span class="font-bold text-sm">{{ opt.valor }}</span>
+                  <span class="leading-tight">{{ opt.label }}</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="text-sm font-semibold text-imperial-text mb-2">Técnico</legend>
+              <p *ngIf="errosEdit.tecnico" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosEdit.tecnico }}</p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label
+                  *ngFor="let opt of notas"
+                  class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+                  [class.border-imperial-green]="editTecnico === opt.valor"
+                  [class.bg-imperial-green-light]="editTecnico === opt.valor"
+                  [class.text-imperial-green]="editTecnico === opt.valor"
+                  [class.border-imperial-border]="editTecnico !== opt.valor"
+                  [class.text-imperial-text-muted]="editTecnico !== opt.valor"
+                >
+                  <input type="radio" [name]="'editTecnico_' + av.id" [value]="opt.valor" [(ngModel)]="editTecnico" class="sr-only" />
+                  <span class="font-bold text-sm">{{ opt.valor }}</span>
+                  <span class="leading-tight">{{ opt.label }}</span>
+                </label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="text-sm font-semibold text-imperial-text mb-2">Mental</legend>
+              <p *ngIf="errosEdit.mental" class="mb-2 text-xs text-imperial-red" role="alert">{{ errosEdit.mental }}</p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <label
+                  *ngFor="let opt of notas"
+                  class="flex flex-col items-center justify-center gap-1 p-2.5 rounded-lg border cursor-pointer text-center text-xs transition-all select-none"
+                  [class.border-imperial-green]="editMental === opt.valor"
+                  [class.bg-imperial-green-light]="editMental === opt.valor"
+                  [class.text-imperial-green]="editMental === opt.valor"
+                  [class.border-imperial-border]="editMental !== opt.valor"
+                  [class.text-imperial-text-muted]="editMental !== opt.valor"
+                >
+                  <input type="radio" [name]="'editMental_' + av.id" [value]="opt.valor" [(ngModel)]="editMental" class="sr-only" />
+                  <span class="font-bold text-sm">{{ opt.valor }}</span>
+                  <span class="leading-tight">{{ opt.label }}</span>
+                </label>
+              </div>
+            </fieldset>
+            <div class="flex gap-3 justify-end pt-1">
+              <button type="button" (click)="cancelarEdicao()" class="px-4 py-2 rounded-lg border border-imperial-border text-imperial-text-muted text-sm font-medium hover:text-imperial-text transition-all">Cancelar</button>
+              <button type="button" (click)="salvarEdicao(av.id)" class="px-4 py-2 rounded-lg bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all shadow-md">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination controls -->
+      <div *ngIf="totalPaginas > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-imperial-border">
+        <button
+          type="button"
+          [disabled]="paginaAtual === 0"
+          (click)="paginaAnterior()"
+          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Anterior
+        </button>
+        <span class="text-sm text-imperial-text-muted">Página {{ paginaAtual + 1 }} de {{ totalPaginas }}</span>
+        <button
+          type="button"
+          [disabled]="paginaAtual === totalPaginas - 1"
+          (click)="proximaPagina()"
+          class="inline-flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        >
+          Próxima
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Voltar button at bottom of list -->
+      <div class="mt-6 flex justify-start">
+        <button
+          type="button"
+          (click)="voltarParaAlunos()"
+          class="inline-flex items-center gap-1 text-sm font-medium text-imperial-green hover:opacity-80 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          Voltar para Alunos
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Menu de navegação inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-imperial-card border-t border-imperial-border flex h-16 z-40">
+    <a
+      routerLink="/students"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green border-t-2 border-imperial-green font-semibold"
+      aria-label="Alunos"
+      aria-current="page"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span class="text-xs font-medium">Alunos</span>
+    </a>
+    <a
+      routerLink="/training"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
+      aria-label="Treino"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <span class="text-xs font-medium">Treino</span>
+    </a>
+    <a
+      routerLink="/games"
+      class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors"
+      aria-label="Jogos"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="14" r="6"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8V5M10 5h4M12 14l2.5-2.5"/>
+      </svg>
+      <span class="text-xs font-medium">Jogos</span>
+    </a>
+    <a *ngIf="authService.isAdmin()" routerLink="/users" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Usuários">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span class="text-xs font-medium">Usuários</span>
+    </a>
+  </nav>
+
+</div>

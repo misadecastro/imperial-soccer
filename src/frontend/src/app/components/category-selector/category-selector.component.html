@@ -1,0 +1,15 @@
+<div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="ariaLabel">
+  <button
+    *ngFor="let cat of categorias"
+    type="button"
+    [attr.aria-pressed]="cat === selecionado"
+    (click)="select(cat)"
+    class="px-4 py-1.5 rounded-full text-sm font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-imperial-green"
+    [class.bg-imperial-green]="cat === selecionado"
+    [class.text-white]="cat === selecionado"
+    [class.border-imperial-green]="cat === selecionado"
+    [class.bg-imperial-card]="cat !== selecionado"
+    [class.text-imperial-text]="cat !== selecionado"
+    [class.border-imperial-border]="cat !== selecionado"
+  >{{ categoriasLabels[cat] }}</button>
+</div>
