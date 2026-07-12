@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { StateService } from '../../services/state.service';
+import { StudentsService } from '../../services/students.service';
 import { CATEGORIAS, CATEGORIAS_LABELS } from '../../models/categoria.constants';
 import { Aluno } from '../../models/aluno.model';
 import { Avaliacao } from '../../models/avaliacao.model';
@@ -13,18 +14,6 @@ const AVATAR_COLORS = [
   '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
   '#06b6d4', '#eab308', '#ef4444', '#6366f1',
 ];
-
-const NOMES = [
-  'Lucas', 'Gabriel', 'Pedro', 'Mateus', 'Rafael', 'Felipe', 'Gustavo', 'Henrique',
-  'Bruno', 'Thiago', 'Carlos', 'Diego', 'André', 'Rodrigo', 'Leonardo',
-  'Ana', 'Beatriz', 'Julia', 'Mariana', 'Larissa', 'Camila', 'Isabela',
-  'Fernanda', 'Amanda', 'Natalia',
-];
-const SOBRENOMES = [
-  'Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Ferreira', 'Costa',
-  'Rodrigues', 'Almeida', 'Nascimento', 'Carvalho', 'Pereira', 'Gomes', 'Martins', 'Rocha',
-];
-const CATEGORIAS_MOCK = ['Sub09', 'Sub10', 'Sub11', 'Sub12', 'Sub13', 'Sub14'];
 
 interface EvalChip {
   key: 'tecnico' | 'tatico' | 'mental';
@@ -45,10 +34,11 @@ interface FormErrors {
   templateUrl: './students.component.html',
   styleUrl: './students.component.css',
 })
-export class StudentsComponent {
+export class StudentsComponent implements OnInit {
   readonly categorias = CATEGORIAS;
   readonly categoriasLabels = CATEGORIAS_LABELS;
 
+  carregando = false;
   mostrarCadastro = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
@@ -62,15 +52,24 @@ export class StudentsComponent {
 
   constructor(
     private readonly stateService: StateService,
+    private readonly studentsService: StudentsService,
     private readonly router: Router,
     public readonly authService: AuthService,
-  ) {
-    if (this.stateService.state.alunos.length === 0) {
-      const mock = this.gerarMockData();
-      this.stateService.state.alunos.push(...mock.alunos);
-      this.stateService.state.avaliacoes.push(...mock.avaliacoes);
-      this.stateService.save();
-    }
+  ) {}
+
+  ngOnInit(): void {
+    this.carregarAlunos();
+  }
+
+  private carregarAlunos(): void {
+    this.carregando = true;
+    this.studentsService.listar().subscribe({
+      next: () => { this.carregando = false; },
+      error: () => {
+        this.carregando = false;
+        this.mostrarToast('Não foi possível carregar os alunos. Tente novamente.', 'error');
+      },
+    });
   }
 
   get alunosFiltrados(): Aluno[] {
@@ -137,31 +136,33 @@ export class StudentsComponent {
 
     if (Object.keys(this.erros).length > 0) return;
 
-    this.stateService.state.alunos.push({
-      id: crypto.randomUUID(),
-      nome,
-      dataNascimento: this.dataNascimento,
-      categoria: this.categoria,
+    this.studentsService.criar({ nome, dataNascimento: this.dataNascimento, categoria: this.categoria }).subscribe({
+      next: () => {
+        this.nome = '';
+        this.dataNascimento = '';
+        this.categoria = '';
+        this.fecharCadastro();
+        this.mostrarToast('Aluno cadastrado com sucesso!');
+      },
+      error: (err) => {
+        const mensagem = err?.error?.message ?? 'Não foi possível cadastrar o aluno.';
+        this.mostrarToast(mensagem, 'error');
+      },
     });
-    this.stateService.save();
-
-    this.nome = '';
-    this.dataNascimento = '';
-    this.categoria = '';
-    this.fecharCadastro();
-    this.mostrarToast('Aluno cadastrado com sucesso!');
   }
 
   excluirAluno(id: string): void {
     if (!window.confirm('Excluir este aluno? Esta ação também remove todas as suas avaliações.')) return;
-    this.stateService.state.alunos = this.stateService.state.alunos.filter((a) => a.id !== id);
-    this.stateService.state.avaliacoes = this.stateService.state.avaliacoes.filter((a) => a.alunoId !== id);
-    this.stateService.save();
-    this.mostrarToast('Aluno excluído.', 'error');
+    this.studentsService.excluir(id).subscribe({
+      next: () => { this.mostrarToast('Aluno excluído.', 'error'); },
+      error: (err) => {
+        const mensagem = err?.error?.message ?? 'Não foi possível excluir o aluno.';
+        this.mostrarToast(mensagem, 'error');
+      },
+    });
   }
 
   avaliar(alunoId: string): void {
-    this.stateService.save();
     this.router.navigate(['/student-eval'], { queryParams: { alunoId } });
   }
 
@@ -177,58 +178,5 @@ export class StudentsComponent {
     setTimeout(() => {
       this.toast = null;
     }, 3000);
-  }
-
-  private gerarMockData(): { alunos: Aluno[]; avaliacoes: Avaliacao[] } {
-    const alunos: Aluno[] = [];
-    const avaliacoes: Avaliacao[] = [];
-
-    for (let i = 0; i < 40; i++) {
-      const alunoId = crypto.randomUUID();
-      const categoria = CATEGORIAS_MOCK[i % CATEGORIAS_MOCK.length];
-      const anoNasc = 2010 + Math.floor(Math.random() * 8);
-      const mesNasc = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
-      const diaNasc = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
-      alunos.push({
-        id: alunoId,
-        nome: this.gerarNomeAleatorio(),
-        dataNascimento: `${anoNasc}-${mesNasc}-${diaNasc}`,
-        categoria,
-      });
-
-      const qtd = 5 + Math.floor(Math.random() * 11); // 5–15
-      const datasUsadas = new Set<string>();
-      for (let j = 0; j < qtd; j++) {
-        let data = '';
-        let tentativas = 0;
-        do {
-          data = this.gerarDataAleatoria('2025-01-01', '2026-04-04');
-          tentativas++;
-        } while (datasUsadas.has(data) && tentativas < 50);
-        datasUsadas.add(data);
-        avaliacoes.push({
-          id: crypto.randomUUID(),
-          alunoId,
-          data,
-          tatico: 2 + Math.floor(Math.random() * 4),
-          tecnico: 2 + Math.floor(Math.random() * 4),
-          mental: 2 + Math.floor(Math.random() * 4),
-        });
-      }
-    }
-    return { alunos, avaliacoes };
-  }
-
-  private gerarNomeAleatorio(): string {
-    const nome = NOMES[Math.floor(Math.random() * NOMES.length)];
-    const sobrenome = SOBRENOMES[Math.floor(Math.random() * SOBRENOMES.length)];
-    return `${nome} ${sobrenome}`;
-  }
-
-  private gerarDataAleatoria(inicio: string, fim: string): string {
-    const tsInicio = new Date(inicio).getTime();
-    const tsFim = new Date(fim).getTime();
-    const ts = tsInicio + Math.random() * (tsFim - tsInicio);
-    return new Date(ts).toISOString().split('T')[0];
   }
 }

@@ -4,3 +4,9 @@ export interface Aluno {
   dataNascimento: string;
   categoria: string;
 }
+
+export interface CreateStudentRequest {
+  nome: string;
+  dataNascimento: string;
+  categoria: string;
+}
