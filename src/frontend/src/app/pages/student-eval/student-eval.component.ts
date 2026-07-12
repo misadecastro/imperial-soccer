@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { StateService } from '../../services/state.service';
+import { EvaluationsService } from '../../services/evaluations.service';
 import { CATEGORIAS_LABELS } from '../../models/categoria.constants';
 import { Aluno } from '../../models/aluno.model';
 import { Avaliacao } from '../../models/avaliacao.model';
@@ -46,6 +47,7 @@ export class StudentEvalComponent implements OnInit {
   aluno: Aluno | null = null;
   private alunoId = '';
 
+  carregando = false;
   mostrarFormulario = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
@@ -70,6 +72,7 @@ export class StudentEvalComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly stateService: StateService,
+    private readonly evaluationsService: EvaluationsService,
     public readonly authService: AuthService,
   ) {}
 
@@ -87,13 +90,26 @@ export class StudentEvalComponent implements OnInit {
     this.alunoId = alunoId;
     this.aluno = aluno;
     this.novaData = this.hoje;
-    this.refreshAvaliacoes();
+    this.carregarAvaliacoes();
+  }
+
+  private carregarAvaliacoes(): void {
+    this.carregando = true;
+    this.evaluationsService.listarPorAluno(this.alunoId).subscribe({
+      next: () => {
+        this.carregando = false;
+        this.refreshAvaliacoes();
+      },
+      error: () => {
+        this.carregando = false;
+        this.mostrarToast('Não foi possível carregar as avaliações.', 'error');
+      },
+    });
   }
 
   /**
-   * Referência estável: recalculada apenas após mutações reais (não a cada
-   * ciclo de change detection), para não destruir/recriar o gráfico de
-   * evolução a cada interação não relacionada (ex.: digitar a data, marcar uma nota).
+   * Campo estável (não getter) populado pelo EvaluationsService via cache em state.avaliacoes.
+   * Recomputado apenas após mutações reais para não recriar o gráfico a cada ciclo de CD.
    */
   todasAvaliacoes: Avaliacao[] = [];
 
@@ -145,19 +161,26 @@ export class StudentEvalComponent implements OnInit {
 
     if (Object.keys(this.errosNovo).length > 0) return;
 
-    this.stateService.state.avaliacoes.push({
-      id: crypto.randomUUID(),
-      alunoId: this.alunoId,
-      data: this.novaData,
-      tatico: this.novoTatico as number,
-      tecnico: this.novoTecnico as number,
-      mental: this.novoMental as number,
-    });
-    this.stateService.save();
-    this.refreshAvaliacoes();
-    this.paginaAtual = 0;
-    this.mostrarToast('Avaliação registrada com sucesso!');
-    this.ocultarFormulario();
+    this.evaluationsService
+      .criar({
+        alunoId: this.alunoId,
+        data: this.novaData,
+        tatico: this.novoTatico as number,
+        tecnico: this.novoTecnico as number,
+        mental: this.novoMental as number,
+      })
+      .subscribe({
+        next: () => {
+          this.refreshAvaliacoes();
+          this.paginaAtual = 0;
+          this.mostrarToast('Avaliação registrada com sucesso!');
+          this.ocultarFormulario();
+        },
+        error: (err) => {
+          const msg = err?.error?.message ?? 'Não foi possível registrar a avaliação.';
+          this.mostrarToast(msg, 'error');
+        },
+      });
   }
 
   iniciarEdicao(av: Avaliacao): void {
@@ -188,31 +211,40 @@ export class StudentEvalComponent implements OnInit {
 
     if (Object.keys(this.errosEdit).length > 0) return;
 
-    const idx = this.stateService.state.avaliacoes.findIndex((a) => a.id === id);
-    if (idx !== -1) {
-      this.stateService.state.avaliacoes[idx] = {
-        ...this.stateService.state.avaliacoes[idx],
+    this.evaluationsService
+      .atualizar(id, {
         data: this.editData,
         tatico: this.editTatico as number,
         tecnico: this.editTecnico as number,
         mental: this.editMental as number,
-      };
-    }
-
-    this.stateService.save();
-    this.refreshAvaliacoes();
-    this.paginaAtual = 0;
-    this.editandoId = null;
-    this.mostrarToast('Avaliação atualizada com sucesso!');
+      })
+      .subscribe({
+        next: () => {
+          this.refreshAvaliacoes();
+          this.paginaAtual = 0;
+          this.editandoId = null;
+          this.mostrarToast('Avaliação atualizada com sucesso!');
+        },
+        error: (err) => {
+          const msg = err?.error?.message ?? 'Não foi possível atualizar a avaliação.';
+          this.mostrarToast(msg, 'error');
+        },
+      });
   }
 
   excluirAvaliacao(id: string): void {
     if (!window.confirm('Excluir esta avaliação?')) return;
-    this.stateService.state.avaliacoes = this.stateService.state.avaliacoes.filter((a) => a.id !== id);
-    this.stateService.save();
-    this.refreshAvaliacoes();
-    this.paginaAtual = 0;
-    this.mostrarToast('Avaliação excluída.', 'error');
+    this.evaluationsService.excluir(id).subscribe({
+      next: () => {
+        this.refreshAvaliacoes();
+        this.paginaAtual = 0;
+        this.mostrarToast('Avaliação excluída.', 'error');
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'Não foi possível excluir a avaliação.';
+        this.mostrarToast(msg, 'error');
+      },
+    });
   }
 
   paginaAnterior(): void {
@@ -224,7 +256,6 @@ export class StudentEvalComponent implements OnInit {
   }
 
   voltarParaAlunos(): void {
-    this.stateService.save();
     this.router.navigateByUrl('/students');
   }
 

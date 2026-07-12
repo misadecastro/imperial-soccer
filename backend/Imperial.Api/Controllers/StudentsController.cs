@@ -15,10 +15,12 @@ public sealed class StudentsController : ControllerBase
         ["Sub09", "Sub10", "Sub11", "Sub12", "Sub13", "Sub14", "Sub15F", "Sub17F"];
 
     private readonly IMongoCollection<Aluno> _alunos;
+    private readonly IMongoCollection<Avaliacao> _avaliacoes;
 
     public StudentsController(IMongoDatabase database)
     {
         _alunos = database.GetCollection<Aluno>("students");
+        _avaliacoes = database.GetCollection<Avaliacao>("evaluations");
     }
 
     /// <summary>FR-003 — lista todos os alunos da escola.</summary>
@@ -49,13 +51,15 @@ public sealed class StudentsController : ControllerBase
         return CreatedAtAction(nameof(GetAll), ApiResponse<StudentResponse>.Ok(Map(aluno), "Aluno cadastrado com sucesso."));
     }
 
-    /// <summary>FR-008 — exclui aluno pelo Id (hard delete; cascade de avaliações é responsabilidade do cliente — research.md decisão #2).</summary>
+    /// <summary>FR-008 + FR-013 — exclui aluno e em cascata todas as suas avaliações (feature 018).</summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult<ApiResponse<object?>>> Delete(string id)
     {
         var resultado = await _alunos.DeleteOneAsync(a => a.Id == id);
         if (resultado.DeletedCount == 0)
             return NotFound(ApiResponse<object?>.Fail("Aluno não encontrado."));
+
+        await _avaliacoes.DeleteManyAsync(av => av.AlunoId == id);
 
         return Ok(ApiResponse<object?>.Ok(null, "Aluno excluído com sucesso."));
     }
