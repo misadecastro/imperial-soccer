@@ -1,6 +1,6 @@
 ﻿# imperial Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-07-12
+Auto-generated from all feature plans. Last updated: 2026-07-13
 
 ## Active Technologies
 - HTML5 + JavaScript ES Modules (browsers modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (002-student-register-eval)
@@ -34,6 +34,8 @@ Auto-generated from all feature plans. Last updated: 2026-07-12
 - MongoDB — nova coleção `students`; `sessionStorage` (`imperialState`) mantida para `avaliacoes`, `chamadas`, `jogos` (intocados por esta feature) (017-student-api)
 - C# 12 / .NET 8 (backend existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente); Angular `HttpClient` (já presente) (018-evaluation-api)
 - MongoDB — nova coleção `evaluations`; `sessionStorage` (`imperialState`) mantida para `chamadas` e `jogos` (intocados por esta feature) (018-evaluation-api)
+- TypeScript 5.x / Angular 18 (standalone components, sem NgModules) + Angular Router, `@angular/forms` (FormsModule), Tailwind CSS v3 (via build). Sem Chart.js, sem HttpClient nesta feature. (019-training-config-crud)
+- Em memória (estado de um serviço Angular singleton `providedIn: 'root'`). Sem `sessionStorage`, sem backend, sem MongoDB — dados mockados perdidos ao recarregar (FR-014, decisão explícita do usuário). (019-training-config-crud)
 
 - HTML5 + JavaScript ES Modules (navegadores modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (001-home-login-page)
 
@@ -54,9 +56,9 @@ npm test; npm run lint
 HTML5 + JavaScript ES Modules (navegadores modernos 2023+): Follow standard conventions
 
 ## Recent Changes
+- 019-training-config-crud: Added TypeScript 5.x / Angular 18 (standalone components, sem NgModules) + Angular Router, `@angular/forms` (FormsModule), Tailwind CSS v3 (via build). Sem Chart.js, sem HttpClient nesta feature.
 - 018-evaluation-api: Added C# 12 / .NET 8 (backend existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente); Angular `HttpClient` (já presente)
 - 017-student-api: Added C# 12 / .NET 8 (backend, projeto existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente), `Microsoft.AspNetCore.Authentication.JwtBearer` (já configurado); Angular `HttpClient` (já presente via `provideHttpClient()`)
-- 016-user-authentication: Added C# 12 / .NET 8 (novo projeto de backend); TypeScript 5.x / Angular 18 (integração no frontend existente) + `Microsoft.AspNetCore.Identity` (abstrações core, sem `Identity.EntityFrameworkCore`), `MongoDB.Driver`, `Microsoft.AspNetCore.Authentication.JwtBearer`, `Swashbuckle.AspNetCore` (Swagger)
 
 
 <!-- MANUAL ADDITIONS START -->

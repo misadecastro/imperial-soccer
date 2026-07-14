@@ -64,7 +64,9 @@
       "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
       "PowerShell(\"stopped\")",
       "Read(//c/Users/mcnaz/AppData/Roaming/Microsoft/UserSecrets/705d7c18-7f6f-4091-b29e-53de5594860f/**)",
-      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Agora vamos fazer no backend a api de cadastro de aluno, integrar com o front\" -Json -ShortName \"student-api\" \"API de cadastro de alunos com integra��o frontend\")"
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Agora vamos fazer no backend a api de cadastro de aluno, integrar com o front\" -Json -ShortName \"student-api\" \"API de cadastro de alunos com integra��o frontend\")",
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"CRUD de itens de configuracao do treino: principios/fundamentos, itens trabalhados e momentos do jogo, com dados mockados\" -Json -ShortName \"training-config-crud\" \"CRUD de configuracao de itens de treino\")",
+      "Bash(ng build *)"
     ],
     "additionalDirectories": [
       "\\tmp",

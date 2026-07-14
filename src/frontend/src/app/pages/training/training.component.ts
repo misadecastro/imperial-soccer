@@ -5,72 +5,10 @@ import { RouterLink } from '@angular/router';
 import { StateService } from '../../services/state.service';
 import { CATEGORIAS, CATEGORIAS_LABELS } from '../../models/categoria.constants';
 import { Chamada, RegistroPresenca } from '../../models/chamada.model';
+import { PrincipioGrupo } from '../../models/training-config.model';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 import { AuthService } from '../../services/auth.service';
-
-interface Momento {
-  id: string;
-  label: string;
-  desc: string;
-  tipo: 'ofensivo' | 'defensivo';
-}
-
-interface PrincipioItem {
-  id: string;
-  label: string;
-}
-
-interface PrincipioGrupo {
-  titulo: string;
-  filtro: 'defensivo' | 'ofensivo' | 'sempre';
-  itens: PrincipioItem[];
-}
-
-const MOMENTOS: Momento[] = [
-  { id: 'org_ofensiva', label: 'Org. Ofensiva', desc: 'Equipe com a posse, construindo jogadas', tipo: 'ofensivo' },
-  { id: 'org_defensiva', label: 'Org. Defensiva', desc: 'Equipe sem a posse, organizada para defender', tipo: 'defensivo' },
-  { id: 'trans_ofensiva', label: 'Trans. Ofensiva', desc: 'Momento da recuperação da posse de bola', tipo: 'ofensivo' },
-  { id: 'trans_defensiva', label: 'Trans. Defensiva', desc: 'Momento da perda da posse de bola', tipo: 'defensivo' },
-];
-
-const PRINCIPIOS_GRUPOS: PrincipioGrupo[] = [
-  {
-    titulo: 'Princípios Táticos Defensivos',
-    filtro: 'defensivo',
-    itens: [
-      { id: 'contencao', label: 'Contenção' },
-      { id: 'cobertura_defensiva', label: 'Cobertura Defensiva' },
-      { id: 'unidade_defensiva', label: 'Unidade Defensiva' },
-      { id: 'concentracao', label: 'Concentração' },
-      { id: 'equilibrio', label: 'Equilíbrio' },
-    ],
-  },
-  {
-    titulo: 'Princípios Táticos Ofensivos',
-    filtro: 'ofensivo',
-    itens: [
-      { id: 'espaco_sem_bola', label: 'Espaço sem Bola' },
-      { id: 'espaco_com_bola', label: 'Espaço com Bola' },
-      { id: 'cobertura_ofensiva', label: 'Cobertura Ofensiva' },
-      { id: 'unidade_ofensiva', label: 'Unidade Ofensiva' },
-      { id: 'penetracao', label: 'Penetração' },
-      { id: 'mobilidade', label: 'Mobilidade' },
-    ],
-  },
-  {
-    titulo: 'Fundamentos Técnicos',
-    filtro: 'sempre',
-    itens: [
-      { id: 'controle_chao', label: 'Controle de Bola no Chão' },
-      { id: 'controle_alto', label: 'Controle de Bola no Alto' },
-      { id: 'drible', label: 'Drible' },
-      { id: 'passe', label: 'Passe' },
-      { id: 'dominio', label: 'Domínio' },
-      { id: 'finalizacao', label: 'Finalização' },
-      { id: 'cabeceio', label: 'Cabeceio' },
-    ],
-  },
-];
+import { TrainingConfigService } from '../../services/training-config.service';
 
 const AVATAR_COLORS = [
   '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
@@ -87,9 +25,15 @@ const AVATAR_COLORS = [
 export class TrainingComponent {
   readonly categorias = CATEGORIAS;
   readonly categoriasLabels = CATEGORIAS_LABELS;
-  readonly momentos = MOMENTOS;
-  readonly principiosGrupos = PRINCIPIOS_GRUPOS;
   readonly hoje = this.todayISO();
+
+  get momentos() {
+    return this.trainingConfig.momentos;
+  }
+
+  get principiosGrupos() {
+    return this.trainingConfig.grupos;
+  }
 
   view: 'lista' | 'form' = 'lista';
   toast: { message: string; type: 'success' | 'error' } | null = null;
@@ -108,6 +52,7 @@ export class TrainingComponent {
   constructor(
     private readonly stateService: StateService,
     public readonly authService: AuthService,
+    private readonly trainingConfig: TrainingConfigService,
   ) {}
 
   get treinosOrdenados(): Chamada[] {
