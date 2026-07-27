@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable, switchMap } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { TrainingConfigService } from '../../services/training-config.service';
+import { ApiResponse } from '../../models/api-response.model';
 import { Momento, PrincipioGrupo, VinculoMomentoPrincipio } from '../../models/training-config.model';
 
 @Component({
@@ -13,8 +16,9 @@ import { Momento, PrincipioGrupo, VinculoMomentoPrincipio } from '../../models/t
   templateUrl: './training-config.component.html',
   styleUrl: './training-config.component.css',
 })
-export class TrainingConfigComponent {
+export class TrainingConfigComponent implements OnInit {
   toast: { message: string; type: 'success' | 'error' } | null = null;
+  carregando = true;
 
   abaAtiva: 'principios' | 'momentos' = 'principios';
 
@@ -39,6 +43,18 @@ export class TrainingConfigComponent {
     private readonly config: TrainingConfigService,
   ) {}
 
+  ngOnInit(): void {
+    this.config.carregar().subscribe({
+      next: () => {
+        this.carregando = false;
+      },
+      error: (e) => {
+        this.carregando = false;
+        this.mostrarToast(this.extrairErro(e), 'error');
+      },
+    });
+  }
+
   get grupos(): PrincipioGrupo[] {
     return this.config.grupos;
   }
@@ -50,10 +66,9 @@ export class TrainingConfigComponent {
   // ── Grupos (Princípios e Fundamentos) ──────────────────────────────────────
 
   criarGrupo(): void {
-    this.run(() => {
-      this.config.criarGrupo(this.novoGrupoTitulo);
+    this.run(this.config.criarGrupo(this.novoGrupoTitulo), 'Princípio/fundamento adicionado.', 'success', () => {
       this.novoGrupoTitulo = '';
-    }, 'Princípio/fundamento adicionado.');
+    });
   }
 
   iniciarEdicaoGrupo(grupo: PrincipioGrupo): void {
@@ -62,10 +77,9 @@ export class TrainingConfigComponent {
   }
 
   salvarEdicaoGrupo(grupoId: string): void {
-    this.run(() => {
-      this.config.renomearGrupo(grupoId, this.editGrupoTitulo);
+    this.run(this.config.renomearGrupo(grupoId, this.editGrupoTitulo), 'Princípio/fundamento atualizado.', 'success', () => {
       this.editandoGrupoId = null;
-    }, 'Princípio/fundamento atualizado.');
+    });
   }
 
   cancelarEdicaoGrupo(): void {
@@ -74,16 +88,15 @@ export class TrainingConfigComponent {
 
   removerGrupo(grupo: PrincipioGrupo): void {
     if (!window.confirm(`Remover "${grupo.titulo}" e seus itens? Vínculos em momentos também serão removidos.`)) return;
-    this.run(() => this.config.removerGrupo(grupo.id), 'Princípio/fundamento removido.', 'error');
+    this.run(this.config.removerGrupo(grupo.id), 'Princípio/fundamento removido.', 'error');
   }
 
   // ── Itens Trabalhados ──────────────────────────────────────────────────────
 
   adicionarItem(grupoId: string): void {
-    this.run(() => {
-      this.config.adicionarItem(grupoId, this.novoItem[grupoId] ?? '');
+    this.run(this.config.adicionarItem(grupoId, this.novoItem[grupoId] ?? ''), 'Item adicionado.', 'success', () => {
       this.novoItem[grupoId] = '';
-    }, 'Item adicionado.');
+    });
   }
 
   iniciarEdicaoItem(itemId: string, label: string): void {
@@ -92,10 +105,9 @@ export class TrainingConfigComponent {
   }
 
   salvarEdicaoItem(grupoId: string, itemId: string): void {
-    this.run(() => {
-      this.config.renomearItem(grupoId, itemId, this.editItemLabel);
+    this.run(this.config.renomearItem(grupoId, itemId, this.editItemLabel), 'Item atualizado.', 'success', () => {
       this.editandoItemId = null;
-    }, 'Item atualizado.');
+    });
   }
 
   cancelarEdicaoItem(): void {
@@ -104,7 +116,7 @@ export class TrainingConfigComponent {
 
   removerItem(grupoId: string, itemId: string, label: string): void {
     if (!window.confirm(`Remover o item "${label}"?`)) return;
-    this.run(() => this.config.removerItem(grupoId, itemId), 'Item removido.', 'error');
+    this.run(this.config.removerItem(grupoId, itemId), 'Item removido.', 'error');
   }
 
   // ── Momentos do Jogo — lista ────────────────────────────────────────────────
@@ -134,7 +146,7 @@ export class TrainingConfigComponent {
 
   removerMomento(momento: Momento): void {
     if (!window.confirm(`Remover o momento "${momento.label}"?`)) return;
-    this.run(() => this.config.removerMomento(momento.id), 'Momento removido.', 'error');
+    this.run(this.config.removerMomento(momento.id), 'Momento removido.', 'error');
   }
 
   /** Grupos vinculados a um momento já salvo — usado no resumo da lista. */
@@ -176,27 +188,35 @@ export class TrainingConfigComponent {
   }
 
   salvarMomento(): void {
-    this.run(() => {
-      if (this.formMomentoId) {
-        this.config.renomearMomento(this.formMomentoId, this.formMomentoLabel, this.formMomentoDesc);
-        this.config.definirVinculos(this.formMomentoId, this.formVinculos);
-      } else {
-        const momento = this.config.criarMomento(this.formMomentoLabel, this.formMomentoTipo, this.formMomentoDesc);
-        this.config.definirVinculos(momento.id, this.formVinculos);
-      }
+    const editando = this.formMomentoId;
+    const vinculos = this.formVinculos;
+    const base = editando
+      ? this.config.renomearMomento(editando, this.formMomentoLabel, this.formMomentoDesc)
+      : this.config.criarMomento(this.formMomentoLabel, this.formMomentoTipo, this.formMomentoDesc);
+    const salvar = base.pipe(switchMap((m) => this.config.definirVinculos(m.id, vinculos)));
+    this.run(salvar, editando ? 'Momento atualizado.' : 'Momento adicionado.', 'success', () => {
       this.momentoView = 'lista';
-    }, this.formMomentoId ? 'Momento atualizado.' : 'Momento adicionado.');
+    });
   }
 
   // ── Infra ──────────────────────────────────────────────────────────────────
 
-  private run(acao: () => void, sucesso: string, tipo: 'success' | 'error' = 'success'): void {
-    try {
-      acao();
-      this.mostrarToast(sucesso, tipo);
-    } catch (e) {
-      this.mostrarToast(e instanceof Error ? e.message : 'Operação inválida.', 'error');
+  private run(obs: Observable<unknown>, sucesso: string, tipo: 'success' | 'error' = 'success', aoConcluir?: () => void): void {
+    obs.subscribe({
+      next: () => {
+        aoConcluir?.();
+        this.mostrarToast(sucesso, tipo);
+      },
+      error: (e) => this.mostrarToast(this.extrairErro(e), 'error'),
+    });
+  }
+
+  private extrairErro(e: unknown): string {
+    if (e instanceof HttpErrorResponse) {
+      const body = e.error as ApiResponse<unknown> | null;
+      return body?.errors?.[0] ?? body?.message ?? 'Falha na comunicação com o servidor.';
     }
+    return e instanceof Error ? e.message : 'Operação inválida.';
   }
 
   private mostrarToast(message: string, type: 'success' | 'error'): void {

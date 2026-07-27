@@ -1,0 +1,19 @@
+<section class="bg-imperial-card rounded-2xl border border-imperial-border shadow-sm p-5">
+  <h2 class="text-sm font-bold uppercase tracking-wide text-imperial-text mb-3">Avaliação Geral</h2>
+  <textarea
+    [(ngModel)]="rascunho"
+    rows="8"
+    placeholder="Escreva aqui a avaliação qualitativa do aluno..."
+    class="w-full rounded-lg border border-imperial-border bg-imperial-bg px-3 py-2 text-sm text-imperial-text resize-y focus:outline-none focus:ring-2 focus:ring-imperial-green"
+  ></textarea>
+  <div class="flex justify-end mt-3">
+    <button
+      type="button"
+      (click)="salvar()"
+      [disabled]="!alterado || salvando"
+      class="px-4 py-1.5 rounded-lg bg-imperial-green text-white text-sm font-medium hover:opacity-90 disabled:opacity-50"
+    >
+      Salvar
+    </button>
+  </div>
+</section>

@@ -1,0 +1,95 @@
+<div class="bg-imperial-bg text-imperial-text min-h-screen">
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
+    <div>
+      <div class="text-base font-bold text-white leading-tight">Tipos de Avaliação</div>
+      <div class="text-xs text-white/70">Configuração (Administrador)</div>
+    </div>
+    <button type="button" (click)="voltar()" class="text-sm font-semibold text-white/90 hover:text-white">← Voltar</button>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <!-- Filtro + Novo -->
+    <div class="flex items-center gap-3 mb-4">
+      <input
+        type="text"
+        [(ngModel)]="filtro"
+        placeholder="Filtrar por nome..."
+        class="flex-1 rounded-lg border border-imperial-border bg-imperial-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-imperial-green"
+      />
+      <button
+        type="button"
+        (click)="novo()"
+        class="px-4 py-2 rounded-lg bg-imperial-green text-white text-sm font-medium hover:opacity-90 shrink-0"
+      >
+        + Novo
+      </button>
+    </div>
+
+    <div *ngIf="carregando" class="text-center text-imperial-text-muted py-8">Carregando...</div>
+
+    <!-- Lista -->
+    <ul *ngIf="!carregando" class="space-y-2">
+      <li
+        *ngFor="let tipo of tiposFiltrados"
+        class="flex items-center justify-between bg-imperial-card rounded-xl border border-imperial-border px-4 py-3"
+      >
+        <div>
+          <div class="font-semibold text-imperial-text text-sm">{{ tipo.nome }}</div>
+          <div class="text-xs text-imperial-text-muted">{{ tipo.itens.length }} item(ns)</div>
+        </div>
+        <div class="flex gap-2 shrink-0">
+          <button type="button" (click)="editar(tipo)" class="px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white">Editar</button>
+          <button type="button" (click)="arquivar(tipo)" class="px-3 py-1.5 rounded-lg border border-imperial-red/30 text-imperial-red text-xs font-medium hover:bg-imperial-red-light">Excluir</button>
+        </div>
+      </li>
+      <li *ngIf="tiposFiltrados.length === 0" class="text-center text-imperial-text-muted py-8 text-sm">
+        Nenhum tipo de avaliação {{ filtro ? 'corresponde ao filtro' : 'cadastrado' }}.
+      </li>
+    </ul>
+  </main>
+
+  <!-- Modal do formulário -->
+  <div *ngIf="formAberto" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-imperial-card rounded-2xl shadow-xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto">
+      <h2 class="text-lg font-bold text-imperial-text mb-4">{{ editandoId ? 'Editar' : 'Novo' }} tipo de avaliação</h2>
+
+      <label class="block text-sm font-medium text-imperial-text mb-1">Nome</label>
+      <input
+        type="text"
+        [(ngModel)]="nome"
+        class="w-full rounded-lg border border-imperial-border bg-imperial-bg px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-imperial-green"
+      />
+
+      <label class="block text-sm font-medium text-imperial-text mb-1">Itens a avaliar</label>
+      <div class="space-y-2 mb-3">
+        <div *ngFor="let item of itens; let i = index" class="flex items-center gap-2">
+          <input
+            type="text"
+            [(ngModel)]="item.nome"
+            placeholder="Nome do item"
+            class="flex-1 rounded-lg border border-imperial-border bg-imperial-bg px-3 py-1.5 text-sm"
+          />
+          <button type="button" (click)="removerItem(i)" class="text-imperial-red text-sm px-2" aria-label="Remover item">✕</button>
+        </div>
+      </div>
+      <button type="button" (click)="adicionarItem()" class="text-sm text-imperial-green font-medium hover:underline mb-4">+ Adicionar item</button>
+
+      <p *ngIf="erro" class="text-sm text-imperial-red mb-3">{{ erro }}</p>
+
+      <div class="flex gap-2">
+        <button type="button" (click)="salvar()" class="flex-1 px-4 py-2 rounded-lg bg-imperial-green text-white text-sm font-medium hover:opacity-90">Salvar</button>
+        <button type="button" (click)="fecharForm()" class="flex-1 px-4 py-2 rounded-lg border border-imperial-border text-imperial-text text-sm font-medium hover:bg-imperial-bg">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div
+    *ngIf="toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg text-sm text-white z-50"
+    [class.bg-imperial-green]="toast.type === 'success'"
+    [class.bg-imperial-red]="toast.type === 'error'"
+  >
+    {{ toast.message }}
+  </div>
+</div>

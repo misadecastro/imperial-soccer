@@ -174,48 +174,16 @@
                 {{ categoriasLabels[aluno.categoria] }}
               </span>
             </div>
-
-            <!-- Eval chips -->
-            <div class="flex items-center gap-1.5 flex-wrap mt-1">
-              <span
-                *ngFor="let chip of evalChips(aluno)"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border"
-                [class.bg-imperial-green-light]="chip.nota !== null"
-                [class.text-imperial-green]="chip.nota !== null"
-                [class.border-imperial-green]="chip.nota !== null"
-                [class.bg-imperial-bg]="chip.nota === null"
-                [class.text-imperial-text-muted]="chip.nota === null"
-                [class.border-imperial-border]="chip.nota === null"
-              >
-                <svg *ngIf="chip.key === 'tecnico'" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 2 C10 6 6 8 6 12 C6 16 10 18 12 22" stroke-width="1"/>
-                  <path d="M12 2 C14 6 18 8 18 12 C18 16 14 18 12 22" stroke-width="1"/>
-                  <path d="M2 12 L22 12" stroke-width="1"/>
-                </svg>
-                <svg *ngIf="chip.key === 'tatico'" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path stroke-linejoin="round" d="M12 2 L22 12 L12 22 L2 12 Z"/>
-                  <path stroke-linejoin="round" stroke-width="1" d="M12 6 L18 12 L12 18 L6 12 Z"/>
-                </svg>
-                <svg *ngIf="chip.key === 'mental'" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 21h6"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-4"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3C9.2 3 7 5.2 7 8c0 2.2 1.3 4.1 3.2 5l-.2 4h4l-.2-4C15.7 12.1 17 10.2 17 8c0-2.8-2.2-5-5-5z"/>
-                </svg>
-                <span>{{ chip.label }}</span>
-                <span class="font-bold">{{ chip.nota !== null ? chip.nota : '–' }}</span>
-              </span>
-            </div>
           </div>
 
           <!-- Actions -->
           <div class="flex flex-col gap-1.5 shrink-0">
             <button
               type="button"
-              (click)="avaliar(aluno.id)"
+              (click)="abrirFicha(aluno.id)"
               class="btn-attendance px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white"
             >
-              Avaliar
+              Ficha
             </button>
             <button
               type="button"

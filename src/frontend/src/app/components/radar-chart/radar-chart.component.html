@@ -1,0 +1,11 @@
+<div class="w-full">
+  <canvas *ngIf="usarRadar" #canvas></canvas>
+
+  <!-- Fallback para < 3 itens -->
+  <ul *ngIf="!usarRadar" class="space-y-1">
+    <li *ngFor="let label of labels; let i = index" class="flex items-center justify-between text-sm">
+      <span class="text-imperial-text-muted">{{ label }}</span>
+      <span class="font-bold text-imperial-green">{{ valores[i] }}</span>
+    </li>
+  </ul>
+</div>

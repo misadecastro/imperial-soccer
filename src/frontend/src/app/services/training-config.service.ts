@@ -1,16 +1,26 @@
 import { Injectable } from '@angular/core';
-import { ItemTrabalhado, Momento, PrincipioGrupo, VinculoMomentoPrincipio } from '../models/training-config.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, forkJoin, map, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { ApiResponse } from '../models/api-response.model';
+import { Momento, PrincipioGrupo, VinculoMomentoPrincipio } from '../models/training-config.model';
 
 /**
- * Fonte única (em memória / mockada) da configuração de itens de treino — feature 019.
- * Inicializado com o seed que antes ficava fixo em `training.component.ts`
- * (`MOMENTOS` / `PRINCIPIOS_GRUPOS`). Sem persistência backend nesta fase:
- * as alterações vivem enquanto a sessão do SPA estiver aberta e voltam ao seed ao recarregar.
+ * Configuração de itens de treino (feature 020) — persistida no backend
+ * (`/training-principles`, `/game-moments`). Mantém um cache em memória
+ * (`_grupos` / `_momentos`) que os templates leem via getters síncronos; cada
+ * operação de escrita chama a API e atualiza esse cache com a resposta do servidor.
+ * Chame {@link carregar} uma vez ao entrar em cada página que consome a config.
  */
 @Injectable({ providedIn: 'root' })
 export class TrainingConfigService {
-  private readonly _grupos: PrincipioGrupo[] = seedGrupos();
-  private readonly _momentos: Momento[] = seedMomentos();
+  private _grupos: PrincipioGrupo[] = [];
+  private _momentos: Momento[] = [];
+
+  private readonly principiosUrl = `${environment.apiUrl}/training-principles`;
+  private readonly momentosUrl = `${environment.apiUrl}/game-moments`;
+
+  constructor(private readonly http: HttpClient) {}
 
   get grupos(): PrincipioGrupo[] {
     return this._grupos;
@@ -20,206 +30,135 @@ export class TrainingConfigService {
     return this._momentos;
   }
 
+  /** Carrega princípios/fundamentos e momentos do backend, populando o cache. */
+  carregar(): Observable<void> {
+    return forkJoin({
+      grupos: this.http.get<ApiResponse<PrincipioGrupo[]>>(this.principiosUrl),
+      momentos: this.http.get<ApiResponse<Momento[]>>(this.momentosUrl),
+    }).pipe(
+      map(({ grupos, momentos }) => {
+        this._grupos = grupos.data ?? [];
+        this._momentos = momentos.data ?? [];
+      }),
+    );
+  }
+
   // ── Princípios e Fundamentos (grupos) ──────────────────────────────────────
 
-  criarGrupo(titulo: string, filtro: PrincipioGrupo['filtro'] = 'sempre'): PrincipioGrupo {
-    const nome = titulo.trim();
-    if (!nome) throw new Error('O nome do princípio/fundamento é obrigatório.');
-    if (this._grupos.some((g) => g.titulo.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um princípio/fundamento com esse nome.');
-    }
-    const grupo: PrincipioGrupo = { id: crypto.randomUUID(), titulo: nome, filtro, itens: [] };
-    this._grupos.push(grupo);
-    return grupo;
+  criarGrupo(titulo: string, filtro: PrincipioGrupo['filtro'] = 'sempre'): Observable<PrincipioGrupo> {
+    return this.http
+      .post<ApiResponse<PrincipioGrupo>>(this.principiosUrl, { titulo, filtro })
+      .pipe(this.unwrap(), tap((g) => this._grupos.push(g)));
   }
 
-  renomearGrupo(grupoId: string, titulo: string): void {
-    const nome = titulo.trim();
-    if (!nome) throw new Error('O nome do princípio/fundamento é obrigatório.');
-    if (this._grupos.some((g) => g.id !== grupoId && g.titulo.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um princípio/fundamento com esse nome.');
-    }
-    const grupo = this._grupos.find((g) => g.id === grupoId);
-    if (grupo) grupo.titulo = nome;
+  renomearGrupo(grupoId: string, titulo: string, filtro?: PrincipioGrupo['filtro']): Observable<PrincipioGrupo> {
+    const alvo = this._grupos.find((g) => g.id === grupoId);
+    const body = { titulo, filtro: filtro ?? alvo?.filtro ?? 'sempre' };
+    return this.http
+      .put<ApiResponse<PrincipioGrupo>>(`${this.principiosUrl}/${grupoId}`, body)
+      .pipe(this.unwrap(), tap((g) => this.upsertGrupo(g)));
   }
 
-  removerGrupo(grupoId: string): void {
-    const idx = this._grupos.findIndex((g) => g.id === grupoId);
-    if (idx === -1) return;
-    this._grupos.splice(idx, 1);
-    // RI-1: remove vínculos órfãos daquele grupo em todos os momentos.
-    for (const m of this._momentos) {
-      m.vinculos = m.vinculos.filter((v) => v.grupoId !== grupoId);
-    }
+  removerGrupo(grupoId: string): Observable<void> {
+    return this.http.delete<ApiResponse<null>>(`${this.principiosUrl}/${grupoId}`).pipe(
+      map((r) => {
+        if (!r.success) throw new Error(r.message ?? 'Falha ao remover.');
+      }),
+      tap(() => {
+        this._grupos = this._grupos.filter((g) => g.id !== grupoId);
+        // RI-1: espelha no cache a remoção dos vínculos órfãos daquele grupo.
+        for (const m of this._momentos) m.vinculos = m.vinculos.filter((v) => v.grupoId !== grupoId);
+      }),
+    );
   }
 
   // ── Itens Trabalhados ──────────────────────────────────────────────────────
 
-  adicionarItem(grupoId: string, label: string): ItemTrabalhado {
-    const grupo = this._grupos.find((g) => g.id === grupoId);
-    if (!grupo) throw new Error('Princípio/fundamento não encontrado.');
-    const nome = label.trim();
-    if (!nome) throw new Error('O nome do item trabalhado é obrigatório.');
-    if (grupo.itens.some((i) => i.label.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um item com esse nome neste princípio/fundamento.');
-    }
-    const item: ItemTrabalhado = { id: crypto.randomUUID(), label: nome };
-    grupo.itens.push(item);
-    return item;
+  adicionarItem(grupoId: string, label: string): Observable<PrincipioGrupo> {
+    return this.http
+      .post<ApiResponse<PrincipioGrupo>>(`${this.principiosUrl}/${grupoId}/items`, { label })
+      .pipe(this.unwrap(), tap((g) => this.upsertGrupo(g)));
   }
 
-  renomearItem(grupoId: string, itemId: string, label: string): void {
-    const grupo = this._grupos.find((g) => g.id === grupoId);
-    if (!grupo) return;
-    const nome = label.trim();
-    if (!nome) throw new Error('O nome do item trabalhado é obrigatório.');
-    if (grupo.itens.some((i) => i.id !== itemId && i.label.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um item com esse nome neste princípio/fundamento.');
-    }
-    const item = grupo.itens.find((i) => i.id === itemId);
-    if (item) item.label = nome;
+  renomearItem(grupoId: string, itemId: string, label: string): Observable<PrincipioGrupo> {
+    return this.http
+      .put<ApiResponse<PrincipioGrupo>>(`${this.principiosUrl}/${grupoId}/items/${itemId}`, { label })
+      .pipe(this.unwrap(), tap((g) => this.upsertGrupo(g)));
   }
 
-  removerItem(grupoId: string, itemId: string): void {
-    const grupo = this._grupos.find((g) => g.id === grupoId);
-    if (!grupo) return;
-    grupo.itens = grupo.itens.filter((i) => i.id !== itemId);
-    // RI-2: remove o item de qualquer seleção em vínculos dos momentos.
-    for (const m of this._momentos) {
-      for (const v of m.vinculos) {
-        if (v.grupoId === grupoId) v.itemIds = v.itemIds.filter((id) => id !== itemId);
-      }
-    }
+  removerItem(grupoId: string, itemId: string): Observable<PrincipioGrupo> {
+    return this.http.delete<ApiResponse<PrincipioGrupo>>(`${this.principiosUrl}/${grupoId}/items/${itemId}`).pipe(
+      this.unwrap(),
+      tap((g) => {
+        this.upsertGrupo(g);
+        // RI-2: espelha no cache a remoção do item de qualquer vínculo nos momentos.
+        for (const m of this._momentos) {
+          for (const v of m.vinculos) {
+            if (v.grupoId === grupoId) v.itemIds = v.itemIds.filter((id) => id !== itemId);
+          }
+        }
+      }),
+    );
   }
 
   // ── Momentos do Jogo ───────────────────────────────────────────────────────
 
-  criarMomento(label: string, tipo: Momento['tipo'] = 'ofensivo', desc = ''): Momento {
-    const nome = label.trim();
-    if (!nome) throw new Error('O nome do momento é obrigatório.');
-    if (this._momentos.some((m) => m.label.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um momento com esse nome.');
-    }
-    const momento: Momento = { id: crypto.randomUUID(), label: nome, desc, tipo, vinculos: [] };
-    this._momentos.push(momento);
-    return momento;
+  criarMomento(label: string, tipo: Momento['tipo'] = 'ofensivo', desc = ''): Observable<Momento> {
+    return this.http
+      .post<ApiResponse<Momento>>(this.momentosUrl, { label, tipo, desc })
+      .pipe(this.unwrapMomento(), tap((m) => this._momentos.push(m)));
   }
 
-  renomearMomento(momentoId: string, label: string, desc?: string): void {
-    const nome = label.trim();
-    if (!nome) throw new Error('O nome do momento é obrigatório.');
-    if (this._momentos.some((m) => m.id !== momentoId && m.label.trim().toLowerCase() === nome.toLowerCase())) {
-      throw new Error('Já existe um momento com esse nome.');
-    }
-    const momento = this._momentos.find((m) => m.id === momentoId);
-    if (momento) {
-      momento.label = nome;
-      if (desc !== undefined) momento.desc = desc.trim();
-    }
+  renomearMomento(momentoId: string, label: string, desc = ''): Observable<Momento> {
+    return this.http
+      .put<ApiResponse<Momento>>(`${this.momentosUrl}/${momentoId}`, { label, desc })
+      .pipe(this.unwrapMomento(), tap((m) => this.upsertMomento(m)));
   }
 
-  removerMomento(momentoId: string): void {
-    this._momentos.splice(
-      this._momentos.findIndex((m) => m.id === momentoId),
-      this._momentos.some((m) => m.id === momentoId) ? 1 : 0,
+  removerMomento(momentoId: string): Observable<void> {
+    return this.http.delete<ApiResponse<null>>(`${this.momentosUrl}/${momentoId}`).pipe(
+      map((r) => {
+        if (!r.success) throw new Error(r.message ?? 'Falha ao remover.');
+      }),
+      tap(() => {
+        this._momentos = this._momentos.filter((m) => m.id !== momentoId);
+      }),
     );
   }
 
-  // ── Vínculos Momento ↔ Princípio ───────────────────────────────────────────
-
-  vincularPrincipio(momentoId: string, grupoId: string): void {
-    const momento = this._momentos.find((m) => m.id === momentoId);
-    if (!momento) return;
-    if (!this._grupos.some((g) => g.id === grupoId)) return;
-    if (momento.vinculos.some((v) => v.grupoId === grupoId)) return;
-    momento.vinculos.push({ grupoId, itemIds: [] });
+  /** Substitui em bloco os vínculos de um momento (sanitizados pelo backend — RI-5). */
+  definirVinculos(momentoId: string, vinculos: VinculoMomentoPrincipio[]): Observable<Momento> {
+    const body = { vinculos: vinculos.map((v) => ({ grupoId: v.grupoId, itemIds: v.itemIds })) };
+    return this.http
+      .put<ApiResponse<Momento>>(`${this.momentosUrl}/${momentoId}/vinculos`, body)
+      .pipe(this.unwrapMomento(), tap((m) => this.upsertMomento(m)));
   }
 
-  desvincularPrincipio(momentoId: string, grupoId: string): void {
-    const momento = this._momentos.find((m) => m.id === momentoId);
-    if (!momento) return;
-    momento.vinculos = momento.vinculos.filter((v) => v.grupoId !== grupoId);
+  // ── Infra de cache ─────────────────────────────────────────────────────────
+
+  private upsertGrupo(grupo: PrincipioGrupo): void {
+    const idx = this._grupos.findIndex((g) => g.id === grupo.id);
+    if (idx >= 0) this._grupos[idx] = grupo;
+    else this._grupos.push(grupo);
   }
 
-  toggleItemVinculo(momentoId: string, grupoId: string, itemId: string): void {
-    const momento = this._momentos.find((m) => m.id === momentoId);
-    const vinculo = momento?.vinculos.find((v) => v.grupoId === grupoId);
-    if (!vinculo) return;
-    const idx = vinculo.itemIds.indexOf(itemId);
-    if (idx >= 0) vinculo.itemIds.splice(idx, 1);
-    else vinculo.itemIds.push(itemId);
+  private upsertMomento(momento: Momento): void {
+    const idx = this._momentos.findIndex((m) => m.id === momento.id);
+    if (idx >= 0) this._momentos[idx] = momento;
+    else this._momentos.push(momento);
   }
 
-  /**
-   * Substitui de uma vez todos os vínculos de um momento (usado ao salvar o
-   * formulário). Descarta vínculos a grupos inexistentes e itens que não pertencem
-   * mais ao grupo, evitando referências órfãs.
-   */
-  definirVinculos(momentoId: string, vinculos: VinculoMomentoPrincipio[]): void {
-    const momento = this._momentos.find((m) => m.id === momentoId);
-    if (!momento) return;
-    momento.vinculos = vinculos
-      .map((v) => {
-        const grupo = this._grupos.find((g) => g.id === v.grupoId);
-        if (!grupo) return null;
-        const validos = new Set(grupo.itens.map((i) => i.id));
-        return { grupoId: v.grupoId, itemIds: v.itemIds.filter((id) => validos.has(id)) };
-      })
-      .filter((v): v is VinculoMomentoPrincipio => v !== null);
+  private unwrap() {
+    return map((r: ApiResponse<PrincipioGrupo>) => {
+      if (!r.success || !r.data) throw new Error(r.message ?? 'Falha na operação.');
+      return r.data;
+    });
   }
-}
 
-// ── Seed (espelha as constantes fixas anteriores de training.component.ts) ─────
-
-function seedMomentos(): Momento[] {
-  return [
-    { id: 'org_ofensiva', label: 'Org. Ofensiva', desc: 'Equipe com a posse, construindo jogadas', tipo: 'ofensivo', vinculos: [] },
-    { id: 'org_defensiva', label: 'Org. Defensiva', desc: 'Equipe sem a posse, organizada para defender', tipo: 'defensivo', vinculos: [] },
-    { id: 'trans_ofensiva', label: 'Trans. Ofensiva', desc: 'Momento da recuperação da posse de bola', tipo: 'ofensivo', vinculos: [] },
-    { id: 'trans_defensiva', label: 'Trans. Defensiva', desc: 'Momento da perda da posse de bola', tipo: 'defensivo', vinculos: [] },
-  ];
-}
-
-function seedGrupos(): PrincipioGrupo[] {
-  return [
-    {
-      id: 'principios_defensivos',
-      titulo: 'Princípios Táticos Defensivos',
-      filtro: 'defensivo',
-      itens: [
-        { id: 'contencao', label: 'Contenção' },
-        { id: 'cobertura_defensiva', label: 'Cobertura Defensiva' },
-        { id: 'unidade_defensiva', label: 'Unidade Defensiva' },
-        { id: 'concentracao', label: 'Concentração' },
-        { id: 'equilibrio', label: 'Equilíbrio' },
-      ],
-    },
-    {
-      id: 'principios_ofensivos',
-      titulo: 'Princípios Táticos Ofensivos',
-      filtro: 'ofensivo',
-      itens: [
-        { id: 'espaco_sem_bola', label: 'Espaço sem Bola' },
-        { id: 'espaco_com_bola', label: 'Espaço com Bola' },
-        { id: 'cobertura_ofensiva', label: 'Cobertura Ofensiva' },
-        { id: 'unidade_ofensiva', label: 'Unidade Ofensiva' },
-        { id: 'penetracao', label: 'Penetração' },
-        { id: 'mobilidade', label: 'Mobilidade' },
-      ],
-    },
-    {
-      id: 'fundamentos_tecnicos',
-      titulo: 'Fundamentos Técnicos',
-      filtro: 'sempre',
-      itens: [
-        { id: 'controle_chao', label: 'Controle de Bola no Chão' },
-        { id: 'controle_alto', label: 'Controle de Bola no Alto' },
-        { id: 'drible', label: 'Drible' },
-        { id: 'passe', label: 'Passe' },
-        { id: 'dominio', label: 'Domínio' },
-        { id: 'finalizacao', label: 'Finalização' },
-        { id: 'cabeceio', label: 'Cabeceio' },
-      ],
-    },
-  ];
+  private unwrapMomento() {
+    return map((r: ApiResponse<Momento>) => {
+      if (!r.success || !r.data) throw new Error(r.message ?? 'Falha na operação.');
+      return r.data;
+    });
+  }
 }

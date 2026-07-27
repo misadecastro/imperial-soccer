@@ -14,7 +14,6 @@ export class StateService {
       const parsed = JSON.parse(raw);
       return {
         alunos: parsed.alunos ?? [],
-        avaliacoes: parsed.avaliacoes ?? [],
         chamadas: parsed.chamadas ?? [],
         jogos: parsed.jogos ?? [],
       };

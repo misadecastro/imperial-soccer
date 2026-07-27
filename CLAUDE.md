@@ -1,6 +1,6 @@
 ﻿# imperial Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-07-13
+Auto-generated from all feature plans. Last updated: 2026-07-27
 
 ## Active Technologies
 - HTML5 + JavaScript ES Modules (browsers modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (002-student-register-eval)
@@ -36,6 +36,12 @@ Auto-generated from all feature plans. Last updated: 2026-07-13
 - MongoDB — nova coleção `evaluations`; `sessionStorage` (`imperialState`) mantida para `chamadas` e `jogos` (intocados por esta feature) (018-evaluation-api)
 - TypeScript 5.x / Angular 18 (standalone components, sem NgModules) + Angular Router, `@angular/forms` (FormsModule), Tailwind CSS v3 (via build). Sem Chart.js, sem HttpClient nesta feature. (019-training-config-crud)
 - Em memória (estado de um serviço Angular singleton `providedIn: 'root'`). Sem `sessionStorage`, sem backend, sem MongoDB — dados mockados perdidos ao recarregar (FR-014, decisão explícita do usuário). (019-training-config-crud)
+- C# 12 / .NET 8 (backend existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente); `Microsoft.AspNetCore.Authentication.JwtBearer` (já configurado); Angular `HttpClient` (já provido via `provideHttpClient()`) (020-training-config-api)
+- MongoDB — novas coleções `training_principles` e `game_moments`; encerra o uso do serviço mock em memória da feature 019 como fonte da verdade (020-training-config-api)
+- C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver` (backend), Angular `HttpClient`/`Router` (frontend) — nenhuma dependência nova; possivelmente **remover** dependências que ficam órfãs (Chart.js só se nenhum outro gráfico permanecer — ver research) (021-remove-evaluation)
+- MongoDB — coleção `evaluations` deixa de ser usada (drop opcional dos dados); `sessionStorage` (`imperialState`) perde o campo `avaliacoes` (021-remove-evaluation)
+- C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver`, `Microsoft.AspNetCore.Authentication.JwtBearer` (já presentes); Angular `HttpClient` (já provido), Chart.js via `chart.js/auto` (já usado no dashboard) — **sem dependência nova** (022-student-profile-card)
+- MongoDB — estende a coleção `students` (campos da ficha embutidos); novas coleções `evaluation_types` (soft delete) e `evaluations` (registros/histórico). Foto do atleta como **data URI base64** embutida no documento do aluno (sem blob storage) (022-student-profile-card)
 
 - HTML5 + JavaScript ES Modules (navegadores modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (001-home-login-page)
 
@@ -56,9 +62,9 @@ npm test; npm run lint
 HTML5 + JavaScript ES Modules (navegadores modernos 2023+): Follow standard conventions
 
 ## Recent Changes
-- 019-training-config-crud: Added TypeScript 5.x / Angular 18 (standalone components, sem NgModules) + Angular Router, `@angular/forms` (FormsModule), Tailwind CSS v3 (via build). Sem Chart.js, sem HttpClient nesta feature.
-- 018-evaluation-api: Added C# 12 / .NET 8 (backend existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente); Angular `HttpClient` (já presente)
-- 017-student-api: Added C# 12 / .NET 8 (backend, projeto existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente), `Microsoft.AspNetCore.Authentication.JwtBearer` (já configurado); Angular `HttpClient` (já presente via `provideHttpClient()`)
+- 022-student-profile-card: Added C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver`, `Microsoft.AspNetCore.Authentication.JwtBearer` (já presentes); Angular `HttpClient` (já provido), Chart.js via `chart.js/auto` (já usado no dashboard) — **sem dependência nova**
+- 021-remove-evaluation: Added C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver` (backend), Angular `HttpClient`/`Router` (frontend) — nenhuma dependência nova; possivelmente **remover** dependências que ficam órfãs (Chart.js só se nenhum outro gráfico permanecer — ver research)
+- 020-training-config-api: Added C# 12 / .NET 8 (backend existente `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend existente) + `MongoDB.Driver` (já presente); `Microsoft.AspNetCore.Authentication.JwtBearer` (já configurado); Angular `HttpClient` (já provido via `provideHttpClient()`)
 
 
 <!-- MANUAL ADDITIONS START -->

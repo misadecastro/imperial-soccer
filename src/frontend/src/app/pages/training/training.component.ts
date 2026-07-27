@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -22,10 +22,11 @@ const AVATAR_COLORS = [
   templateUrl: './training.component.html',
   styleUrl: './training.component.css',
 })
-export class TrainingComponent {
+export class TrainingComponent implements OnInit {
   readonly categorias = CATEGORIAS;
   readonly categoriasLabels = CATEGORIAS_LABELS;
   readonly hoje = this.todayISO();
+  configCarregando = true;
 
   get momentos() {
     return this.trainingConfig.momentos;
@@ -54,6 +55,18 @@ export class TrainingComponent {
     public readonly authService: AuthService,
     private readonly trainingConfig: TrainingConfigService,
   ) {}
+
+  ngOnInit(): void {
+    this.trainingConfig.carregar().subscribe({
+      next: () => {
+        this.configCarregando = false;
+      },
+      error: () => {
+        this.configCarregando = false;
+        this.mostrarToast('Não foi possível carregar a configuração de treino.', 'error');
+      },
+    });
+  }
 
   get treinosOrdenados(): Chamada[] {
     return [...this.stateService.state.chamadas].sort((a, b) => b.data.localeCompare(a.data));

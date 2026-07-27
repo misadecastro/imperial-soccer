@@ -6,11 +6,9 @@ import Chart from 'chart.js/auto';
 import { StateService } from '../../services/state.service';
 import { CATEGORIAS, CATEGORIAS_LABELS } from '../../models/categoria.constants';
 import { Aluno } from '../../models/aluno.model';
-import { Avaliacao } from '../../models/avaliacao.model';
 import { Chamada, RegistroPresenca } from '../../models/chamada.model';
 import { CategorySelectorComponent } from '../../components/category-selector/category-selector.component';
 import { MetricCardComponent, MetricIcon } from '../../components/metric-card/metric-card.component';
-import { EvolutionChartComponent } from '../../components/evolution-chart/evolution-chart.component';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -94,7 +92,6 @@ interface AlunoData {
   mediaPorJogo: number | null;
   minutagemSeries: MinutagemPonto[];
   historicoJogos: HistoricoJogoItem[];
-  avaliacoesRecentes: Avaliacao[];
 }
 
 const MOMENTOS: Momento[] = [
@@ -216,7 +213,6 @@ const MOCK_CHAMADAS_DASHBOARD: Omit<Chamada, 'id'>[] = [
     RouterLink,
     CategorySelectorComponent,
     MetricCardComponent,
-    EvolutionChartComponent,
     EmptyStateComponent,
   ],
   templateUrl: './dashboard.component.html',
@@ -564,12 +560,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       minutos: minutosFor(jogo),
     }));
 
-    const avaliacoesRecentes = this.stateService.state.avaliacoes
-      .filter((av) => av.alunoId === aluno.id)
-      .sort((a, b) => b.data.localeCompare(a.data))
-      .slice(0, 6)
-      .reverse();
-
     return {
       presencas,
       convocacoes,
@@ -582,7 +572,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       mediaPorJogo,
       minutagemSeries,
       historicoJogos,
-      avaliacoesRecentes,
     };
   }
 

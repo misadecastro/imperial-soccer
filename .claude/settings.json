@@ -66,7 +66,17 @@
       "Read(//c/Users/mcnaz/AppData/Roaming/Microsoft/UserSecrets/705d7c18-7f6f-4091-b29e-53de5594860f/**)",
       "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"Agora vamos fazer no backend a api de cadastro de aluno, integrar com o front\" -Json -ShortName \"student-api\" \"API de cadastro de alunos com integra��o frontend\")",
       "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"CRUD de itens de configuracao do treino: principios/fundamentos, itens trabalhados e momentos do jogo, com dados mockados\" -Json -ShortName \"training-config-crud\" \"CRUD de configuracao de itens de treino\")",
-      "Bash(ng build *)"
+      "Bash(ng build *)",
+      "PowerShell(& .specify/scripts/powershell/create-new-feature.ps1 -Json -ShortName \"training-config-api\" \"Backend e integra��o para configura��o de treino \\(Momentos, Princ�pios/Fundamentos, Itens Trabalhados\\)\")",
+      "PowerShell(& .specify/scripts/powershell/setup-plan.ps1 -Json)",
+      "PowerShell(& .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/update-agent-context.ps1\" -AgentType claude)",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/check-prerequisites.ps1\" -Json)",
+      "PowerShell(Stop-Process -Id 7096 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Name Imperial.Api -ErrorAction SilentlyContinue)",
+      "PowerShell(dotnet build \"d:\\\\Projetos\\\\Nova pasta\\\\imperial-soccer\\\\backend\\\\Imperial.slnx\" -clp:ErrorsOnly)",
+      "PowerShell(dotnet test \"d:\\\\Projetos\\\\Nova pasta\\\\imperial-soccer\\\\backend\\\\Imperial.slnx\" -clp:ErrorsOnly 2>&1)",
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"vamos remover a avalia��o do sistema, tudo referente a avalia��o deve ser removido\" -Json -ShortName \"remove-evaluation\" \"Remove evaluation feature\")"
     ],
     "additionalDirectories": [
       "\\tmp",

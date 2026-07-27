@@ -83,6 +83,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<AdminSeedService>();
+builder.Services.AddScoped<TrainingConfigSeedService>();
 
 var app = builder.Build();
 
@@ -91,6 +92,9 @@ using (var seedScope = app.Services.CreateScope())
 {
     var seeder = seedScope.ServiceProvider.GetRequiredService<AdminSeedService>();
     await seeder.SeedAsync();
+
+    var configSeeder = seedScope.ServiceProvider.GetRequiredService<TrainingConfigSeedService>();
+    await configSeeder.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.

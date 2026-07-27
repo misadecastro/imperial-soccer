@@ -15,12 +15,10 @@ public sealed class StudentsController : ControllerBase
         ["Sub09", "Sub10", "Sub11", "Sub12", "Sub13", "Sub14", "Sub15F", "Sub17F"];
 
     private readonly IMongoCollection<Aluno> _alunos;
-    private readonly IMongoCollection<Avaliacao> _avaliacoes;
 
     public StudentsController(IMongoDatabase database)
     {
         _alunos = database.GetCollection<Aluno>("students");
-        _avaliacoes = database.GetCollection<Avaliacao>("evaluations");
     }
 
     /// <summary>FR-003 — lista todos os alunos da escola.</summary>
@@ -51,7 +49,7 @@ public sealed class StudentsController : ControllerBase
         return CreatedAtAction(nameof(GetAll), ApiResponse<StudentResponse>.Ok(Map(aluno), "Aluno cadastrado com sucesso."));
     }
 
-    /// <summary>FR-008 + FR-013 — exclui aluno e em cascata todas as suas avaliações (feature 018).</summary>
+    /// <summary>FR-008 — exclui um aluno.</summary>
     [HttpDelete("{id}")]
     public async Task<ActionResult<ApiResponse<object?>>> Delete(string id)
     {
@@ -59,13 +57,42 @@ public sealed class StudentsController : ControllerBase
         if (resultado.DeletedCount == 0)
             return NotFound(ApiResponse<object?>.Fail("Aluno não encontrado."));
 
-        await _avaliacoes.DeleteManyAsync(av => av.AlunoId == id);
-
         return Ok(ApiResponse<object?>.Ok(null, "Aluno excluído com sucesso."));
     }
 
+    private static readonly string[] PesValidos = ["Direito", "Esquerdo", "Ambidestro"];
+
+    /// <summary>Feature 022 — atualiza os campos da ficha do aluno (edição inline). Campos opcionais.</summary>
+    [HttpPut("{id}/profile")]
+    public async Task<ActionResult<ApiResponse<StudentResponse>>> UpdateProfile(string id, [FromBody] UpdateStudentProfileRequest request)
+    {
+        var aluno = await _alunos.Find(a => a.Id == id).FirstOrDefaultAsync();
+        if (aluno is null) return NotFound(ApiResponse<StudentResponse>.Fail("Aluno não encontrado."));
+
+        var erros = new List<string>();
+        if (request.PeDominante is not null && !PesValidos.Contains(request.PeDominante))
+            erros.Add("Pé dominante inválido. Valores aceitos: Direito, Esquerdo, Ambidestro.");
+        if (request.MassaCorporal is <= 0)
+            erros.Add("A massa corporal deve ser maior que zero.");
+        if (request.Estatura is <= 0)
+            erros.Add("A estatura deve ser maior que zero.");
+        if (request.Foto is { Length: > 0 } && !request.Foto.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+            erros.Add("A foto deve ser uma imagem (data URI).");
+        if (erros.Count > 0)
+            return BadRequest(ApiResponse<StudentResponse>.Fail("Dados inválidos.", erros));
+
+        aluno.Foto = string.IsNullOrEmpty(request.Foto) ? aluno.Foto : request.Foto;
+        aluno.PeDominante = request.PeDominante ?? aluno.PeDominante;
+        aluno.MassaCorporal = request.MassaCorporal ?? aluno.MassaCorporal;
+        aluno.Estatura = request.Estatura ?? aluno.Estatura;
+        aluno.AvaliacaoGeral = request.AvaliacaoGeral ?? aluno.AvaliacaoGeral;
+
+        await _alunos.ReplaceOneAsync(a => a.Id == id, aluno);
+        return Ok(ApiResponse<StudentResponse>.Ok(Map(aluno), "Ficha atualizada."));
+    }
+
     private static StudentResponse Map(Aluno a) =>
-        new(a.Id, a.Nome, a.DataNascimento, a.Categoria);
+        new(a.Id, a.Nome, a.DataNascimento, a.Categoria, a.Foto, a.PeDominante, a.MassaCorporal, a.Estatura, a.AvaliacaoGeral);
 
     private static List<string> Validar(CreateStudentRequest r)
     {

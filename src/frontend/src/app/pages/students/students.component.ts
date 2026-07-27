@@ -6,7 +6,6 @@ import { StateService } from '../../services/state.service';
 import { StudentsService } from '../../services/students.service';
 import { CATEGORIAS, CATEGORIAS_LABELS } from '../../models/categoria.constants';
 import { Aluno } from '../../models/aluno.model';
-import { Avaliacao } from '../../models/avaliacao.model';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -14,12 +13,6 @@ const AVATAR_COLORS = [
   '#16a34a', '#f97316', '#ec4899', '#8b5cf6',
   '#06b6d4', '#eab308', '#ef4444', '#6366f1',
 ];
-
-interface EvalChip {
-  key: 'tecnico' | 'tatico' | 'mental';
-  label: string;
-  nota: number | null;
-}
 
 interface FormErrors {
   nome?: string;
@@ -56,6 +49,10 @@ export class StudentsComponent implements OnInit {
     private readonly router: Router,
     public readonly authService: AuthService,
   ) {}
+
+  abrirFicha(alunoId: string): void {
+    this.router.navigate(['/student-profile'], { queryParams: { alunoId } });
+  }
 
   ngOnInit(): void {
     this.carregarAlunos();
@@ -103,15 +100,6 @@ export class StudentsComponent implements OnInit {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
-  evalChips(aluno: Aluno): EvalChip[] {
-    const avaliacao = this.ultimaAvaliacao(aluno.id);
-    return [
-      { key: 'tecnico', label: 'Téc', nota: avaliacao ? avaliacao.tecnico : null },
-      { key: 'tatico', label: 'Tát', nota: avaliacao ? avaliacao.tatico : null },
-      { key: 'mental', label: 'Ment', nota: avaliacao ? avaliacao.mental : null },
-    ];
-  }
-
   formatDate(iso: string): string {
     if (!iso) return '';
     const [year, month, day] = iso.split('-');
@@ -152,7 +140,7 @@ export class StudentsComponent implements OnInit {
   }
 
   excluirAluno(id: string): void {
-    if (!window.confirm('Excluir este aluno? Esta ação também remove todas as suas avaliações.')) return;
+    if (!window.confirm('Excluir este aluno?')) return;
     this.studentsService.excluir(id).subscribe({
       next: () => { this.mostrarToast('Aluno excluído.', 'error'); },
       error: (err) => {
@@ -160,17 +148,6 @@ export class StudentsComponent implements OnInit {
         this.mostrarToast(mensagem, 'error');
       },
     });
-  }
-
-  avaliar(alunoId: string): void {
-    this.router.navigate(['/student-eval'], { queryParams: { alunoId } });
-  }
-
-  private ultimaAvaliacao(alunoId: string): Avaliacao | null {
-    const avals = this.stateService.state.avaliacoes
-      .filter((a) => a.alunoId === alunoId)
-      .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
-    return avals[0] ?? null;
   }
 
   private mostrarToast(message: string, type: 'success' | 'error' = 'success'): void {

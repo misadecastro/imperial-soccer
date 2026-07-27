@@ -1,0 +1,76 @@
+<div class="bg-imperial-bg text-imperial-text min-h-screen">
+  <!-- Header -->
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+      </svg>
+      <div>
+        <div class="text-base font-bold text-white leading-tight">Imperial Soccer</div>
+        <div class="text-xs text-white/70">Ficha do Aluno</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a
+        *ngIf="authService.isAdmin()"
+        routerLink="/evaluation-types"
+        class="text-white/90 hover:text-white"
+        title="Gerenciar tipos de avaliação"
+        aria-label="Gerenciar tipos de avaliação"
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </a>
+      <a routerLink="/students" class="text-sm font-semibold text-white/90 hover:text-white">← Voltar</a>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <div *ngIf="carregando" class="text-center text-imperial-text-muted py-12">Carregando...</div>
+
+    <div *ngIf="!carregando && aluno" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <!-- Coluna 1 -->
+      <div class="flex flex-col gap-4">
+        <app-student-info-card [aluno]="aluno" (atualizar)="atualizarFicha($event)"></app-student-info-card>
+        <app-general-evaluation [texto]="aluno.avaliacaoGeral ?? null" (salvarTexto)="salvarAvaliacaoGeral($event)"></app-general-evaluation>
+      </div>
+
+      <!-- Coluna 2 -->
+      <div class="flex flex-col gap-4">
+        <app-evaluation-type-panel
+          *ngFor="let tipo of tiposColuna2"
+          [tipo]="tipo"
+          [avaliacoes]="avaliacoesDoTipo(tipo.id)"
+          (avaliar)="onAvaliar($event)"
+        ></app-evaluation-type-panel>
+      </div>
+
+      <!-- Coluna 3 -->
+      <div class="flex flex-col gap-4">
+        <app-evaluation-type-panel
+          *ngFor="let tipo of tiposColuna3"
+          [tipo]="tipo"
+          [avaliacoes]="avaliacoesDoTipo(tipo.id)"
+          (avaliar)="onAvaliar($event)"
+        ></app-evaluation-type-panel>
+      </div>
+
+      <!-- Sem tipos cadastrados -->
+      <div *ngIf="tipos.length === 0" class="lg:col-span-2 text-center text-imperial-text-muted text-sm py-8">
+        Nenhum tipo de avaliação cadastrado ainda.
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div
+    *ngIf="toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg text-sm text-white z-50"
+    [class.bg-imperial-green]="toast.type === 'success'"
+    [class.bg-imperial-red]="toast.type === 'error'"
+  >
+    {{ toast.message }}
+  </div>
+</div>
