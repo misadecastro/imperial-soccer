@@ -147,4 +147,21 @@ dotnet run                     # API em http://localhost:5179, Swagger em /swagg
 - Testes de backend rodam contra uma instância MongoDB real em bancos dedicados
   (`imperial_soccer_test*`), limpos a cada execução — sem mocks do driver.
 
+### Deploy no Render (Docker — feature 023)
+
+O backend é containerizado (`backend/Dockerfile`, contexto de build `backend/`) e publicável no
+Render como Web Service. Passo a passo e mapa de aceitação em
+`specs/023-backend-docker-render/quickstart.md`.
+
+- **Config por variáveis de ambiente** (convenção `__` do .NET): `MongoDb__ConnectionString`,
+  `MongoDb__DatabaseName`, `Cors__AllowedOrigins__0` (aceita 1+ origens numa única variável,
+  separadas por `,`/`;`), `Jwt__Key`, `AdminSeed__Email`, `AdminSeed__Senha`,
+  `ASPNETCORE_ENVIRONMENT=Production`. Segredos ficam no painel do Render (`render.yaml` usa
+  `sync: false`) — nunca no repo/imagem.
+- O container escuta na porta injetada em `PORT` (fallback `8080`); `UseHttpsRedirection` só em
+  Development (TLS terminado na borda do Render); health check em `/health`.
+- MongoDB é externo (ex.: Atlas) — liberar o acesso de rede/IP do Render no provedor do banco.
+
 <!-- MANUAL ADDITIONS END -->
+
+

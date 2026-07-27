@@ -1,0 +1,36 @@
+# Render Blueprint — backend Imperial.Api (feature 023).
+# Segredos usam `sync: false`: o Render pede o valor no painel; NUNCA versionados aqui.
+services:
+  - type: web
+    name: imperial-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # ── Banco (segredo) ──────────────────────────────────────────────────────
+      - key: MongoDb__ConnectionString   # ex.: mongodb+srv://user:pass@cluster/...
+        sync: false
+      - key: MongoDb__DatabaseName
+        value: imperial_soccer
+      # ── CORS: URL(s) do frontend. Uma variável aceita 1+ origens separadas por vírgula ──
+      - key: Cors__AllowedOrigins__0     # ex.: https://seu-frontend.exemplo
+        sync: false
+      # ── JWT ──────────────────────────────────────────────────────────────────
+      - key: Jwt__Key                    # segredo — chave de assinatura do token
+        sync: false
+      - key: Jwt__Issuer
+        value: ImperialSoccer.Api
+      - key: Jwt__Audience
+        value: ImperialSoccer.Frontend
+      - key: Jwt__ExpirationHours
+        value: "8"
+      # ── Administrador inicial (seed) ─────────────────────────────────────────
+      - key: AdminSeed__Email
+        sync: false
+      - key: AdminSeed__Senha            # segredo
+        sync: false

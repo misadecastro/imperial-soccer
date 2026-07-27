@@ -76,7 +76,13 @@
       "PowerShell(Get-Process -Name Imperial.Api -ErrorAction SilentlyContinue)",
       "PowerShell(dotnet build \"d:\\\\Projetos\\\\Nova pasta\\\\imperial-soccer\\\\backend\\\\Imperial.slnx\" -clp:ErrorsOnly)",
       "PowerShell(dotnet test \"d:\\\\Projetos\\\\Nova pasta\\\\imperial-soccer\\\\backend\\\\Imperial.slnx\" -clp:ErrorsOnly 2>&1)",
-      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"vamos remover a avalia��o do sistema, tudo referente a avalia��o deve ser removido\" -Json -ShortName \"remove-evaluation\" \"Remove evaluation feature\")"
+      "PowerShell(.specify/scripts/powershell/create-new-feature.ps1 \"vamos remover a avalia��o do sistema, tudo referente a avalia��o deve ser removido\" -Json -ShortName \"remove-evaluation\" \"Remove evaluation feature\")",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(curl -s -o /dev/null -D - -X OPTIONS http://localhost:8080/api/v1/students -H 'Origin: https://front-a.exemplo' -H 'Access-Control-Request-Method: GET')",
+      "Bash(curl -s -o /dev/null -D - -X OPTIONS http://localhost:8080/api/v1/students -H 'Origin: https://front-b.exemplo' -H 'Access-Control-Request-Method: GET')",
+      "Bash(curl -s -o /dev/null -D - -X OPTIONS http://localhost:8080/api/v1/students -H 'Origin: https://evil.exemplo' -H 'Access-Control-Request-Method: GET')",
+      "Bash(docker run *)",
+      "Bash(echo \"exit code do container: $?\")"
     ],
     "additionalDirectories": [
       "\\tmp",

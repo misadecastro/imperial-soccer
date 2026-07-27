@@ -32,7 +32,7 @@ Render (MVP). US2 = configuração por variáveis (banco + CORS). US3 = segredos
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Confirmar baseline verde: `dotnet build backend/Imperial.slnx` (garante que a app compila antes de containerizar)
+- [X] T001 Confirmar baseline verde: `dotnet build backend/Imperial.slnx` (garante que a app compila antes de containerizar)
 
 ---
 
@@ -55,12 +55,12 @@ porta injetada pela plataforma e responde por HTTPS (health check em `/health`).
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] Em `backend/Imperial.Api/Program.cs`, ler `PORT` do ambiente e vincular o Kestrel a `http://0.0.0.0:{PORT}` (fallback `8080`) via `builder.WebHost.UseUrls(...)` (research Decisão 2 / FR-002)
-- [ ] T003 [US1] Em `backend/Imperial.Api/Program.cs`, chamar `app.UseHttpsRedirection()` **somente** quando `app.Environment.IsDevelopment()` (TLS terminado na borda do Render — research Decisão 3)
-- [ ] T004 [US1] Em `backend/Imperial.Api/Program.cs`, adicionar endpoint anônimo `app.MapGet("/health", () => Results.Ok(new { status = "ok" }))` (research Decisão 6 / contrato de runtime)
-- [ ] T005 [P] [US1] Criar `backend/.dockerignore` ignorando `**/bin`, `**/obj`, `.git`, `**/appsettings.*.json` (overrides locais), `*.user`, `**/.vs` (reduz contexto e evita vazar artefatos — research Decisão 7)
-- [ ] T006 [US1] Criar `backend/Dockerfile` multi-stage: estágio `mcr.microsoft.com/dotnet/sdk:8.0` (copiar `Imperial.Api/*.csproj`, `dotnet restore`, copiar `Imperial.Api/`, `dotnet publish -c Release -o /app`) → estágio `mcr.microsoft.com/dotnet/aspnet:8.0` (copiar `/app`, `ENTRYPOINT ["dotnet","Imperial.Api.dll"]`); publica **só** `Imperial.Api` (não o projeto de testes) — research Decisão 1
-- [ ] T007 [US1] Smoke test local: `docker build -t imperial-api -f backend/Dockerfile backend` e `docker run` com `PORT`, `MongoDb__ConnectionString`, `Cors__AllowedOrigins__0`, `Jwt__Key`, `AdminSeed__Email`, `AdminSeed__Senha`; validar `curl /health` → 200 (requer Docker + MongoDB acessível)
+- [X] T002 [US1] Em `backend/Imperial.Api/Program.cs`, ler `PORT` do ambiente e vincular o Kestrel a `http://0.0.0.0:{PORT}` (fallback `8080`) via `builder.WebHost.UseUrls(...)` (research Decisão 2 / FR-002)
+- [X] T003 [US1] Em `backend/Imperial.Api/Program.cs`, chamar `app.UseHttpsRedirection()` **somente** quando `app.Environment.IsDevelopment()` (TLS terminado na borda do Render — research Decisão 3)
+- [X] T004 [US1] Em `backend/Imperial.Api/Program.cs`, adicionar endpoint anônimo `app.MapGet("/health", () => Results.Ok(new { status = "ok" }))` (research Decisão 6 / contrato de runtime)
+- [X] T005 [P] [US1] Criar `backend/.dockerignore` ignorando `**/bin`, `**/obj`, `.git`, `**/appsettings.*.json` (overrides locais), `*.user`, `**/.vs` (reduz contexto e evita vazar artefatos — research Decisão 7)
+- [X] T006 [US1] Criar `backend/Dockerfile` multi-stage: estágio `mcr.microsoft.com/dotnet/sdk:8.0` (copiar `Imperial.Api/*.csproj`, `dotnet restore`, copiar `Imperial.Api/`, `dotnet publish -c Release -o /app`) → estágio `mcr.microsoft.com/dotnet/aspnet:8.0` (copiar `/app`, `ENTRYPOINT ["dotnet","Imperial.Api.dll"]`); publica **só** `Imperial.Api` (não o projeto de testes) — research Decisão 1
+- [X] T007 [US1] Smoke test local: `docker build -t imperial-api -f backend/Dockerfile backend` e `docker run` com `PORT`, `MongoDb__ConnectionString`, `Cors__AllowedOrigins__0`, `Jwt__Key`, `AdminSeed__Email`, `AdminSeed__Senha`; validar `curl /health` → 200 (requer Docker + MongoDB acessível)
 
 **Checkpoint**: Imagem builda, sobe na porta de `PORT` e responde em `/health`.
 
@@ -77,9 +77,9 @@ no CORS.
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Em `backend/Imperial.Api/Program.cs`, ao montar a política de CORS, **achatar** `Cors:AllowedOrigins` dividindo cada entrada por `,`/`;`, `Trim()` e remover barra final/vazios (uma variável cobre uma ou várias origens — research Decisão 4 / FR-005)
-- [ ] T009 [US2] Criar `render.yaml` na raiz: Web Service `env: docker`, `dockerfilePath: backend/Dockerfile`, `dockerContext: backend`, `healthCheckPath: /health`, e `envVars` listando os **nomes** (ver data-model.md) com `sync: false` para os segredos (research Decisão 7 / FR-004, FR-005, FR-008)
-- [ ] T010 [US2] Documentar o mapeamento de variáveis (convenção `__`) na seção de deploy do `CLAUDE.md` (backend), apontando para `specs/023-backend-docker-render/quickstart.md`
+- [X] T008 [US2] Em `backend/Imperial.Api/Program.cs`, ao montar a política de CORS, **achatar** `Cors:AllowedOrigins` dividindo cada entrada por `,`/`;`, `Trim()` e remover barra final/vazios (uma variável cobre uma ou várias origens — research Decisão 4 / FR-005)
+- [X] T009 [US2] Criar `render.yaml` na raiz: Web Service `env: docker`, `dockerfilePath: backend/Dockerfile`, `dockerContext: backend`, `healthCheckPath: /health`, e `envVars` listando os **nomes** (ver data-model.md) com `sync: false` para os segredos (research Decisão 7 / FR-004, FR-005, FR-008)
+- [X] T010 [US2] Documentar o mapeamento de variáveis (convenção `__`) na seção de deploy do `CLAUDE.md` (backend), apontando para `specs/023-backend-docker-render/quickstart.md`
 
 **Checkpoint**: Banco e CORS controlados por variáveis; mudança de valor vale sem rebuild.
 
@@ -97,9 +97,9 @@ container sem `Jwt__Key` e confirmar que ele **não sobe** com erro claro.
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Verificar o repositório: `rg -i "mongodb\+srv://|Jwt.*Key|AdminSeed"` e revisar `backend/Imperial.Api/appsettings.json` — confirmar que **não há** string de conexão real, chave de token nem senha (appsettings deve manter só defaults não-secretos) — FR-009/SC-004
-- [ ] T012 [US3] Verificar a imagem: `docker history imperial-api` e `docker run --rm imperial-api sh -c "ls /app/appsettings*.json"` — confirmar que nenhum `appsettings.*.json` local com segredo nem outro segredo foi embutido (o `.dockerignore` de T005 cobre os overrides locais)
-- [ ] T013 [US3] Verificar a segurança de startup: `docker run` **sem** `Jwt__Key` → o processo encerra com mensagem clara (comportamento existente do `throw` em `Program.cs`) — FR-010/SC-006
+- [X] T011 [US3] Verificar o repositório: `rg -i "mongodb\+srv://|Jwt.*Key|AdminSeed"` e revisar `backend/Imperial.Api/appsettings.json` — confirmar que **não há** string de conexão real, chave de token nem senha (appsettings deve manter só defaults não-secretos) — FR-009/SC-004
+- [X] T012 [US3] Verificar a imagem: `docker history imperial-api` e `docker run --rm imperial-api sh -c "ls /app/appsettings*.json"` — confirmar que nenhum `appsettings.*.json` local com segredo nem outro segredo foi embutido (o `.dockerignore` de T005 cobre os overrides locais)
+- [X] T013 [US3] Verificar a segurança de startup: `docker run` **sem** `Jwt__Key` → o processo encerra com mensagem clara (comportamento existente do `throw` em `Program.cs`) — FR-010/SC-006
 
 **Checkpoint**: Zero segredos no repo/imagem; startup seguro validado.
 
@@ -107,7 +107,7 @@ container sem `Jwt__Key` e confirmar que ele **não sobe** com erro claro.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T014 [P] Revisar `specs/023-backend-docker-render/quickstart.md` e garantir que os nomes das variáveis e os passos batem com o `render.yaml` e o `Dockerfile` finais
+- [X] T014 [P] Revisar `specs/023-backend-docker-render/quickstart.md` e garantir que os nomes das variáveis e os passos batem com o `render.yaml` e o `Dockerfile` finais
 - [ ] T015 Executar o mapa de aceitação do `quickstart.md` (7 verificações: /health, CORS ok/bloqueado, troca de variável sem rebuild, ausência de segredos, falha sem Jwt__Key, seed do Admin no 1º deploy)
 
 ---
