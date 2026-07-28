@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Imperial.Api.Tests/Imperial.Api.Tests.csproj" />
+  <Project Path="Imperial.Api/Imperial.Api.csproj" />
+</Solution>

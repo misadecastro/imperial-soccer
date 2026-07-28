@@ -1,0 +1,267 @@
+<div class="bg-imperial-bg text-imperial-text min-h-screen flex flex-col pb-16">
+
+  <!-- Header -->
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center gap-3">
+    <svg class="w-8 h-8 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <circle cx="12" cy="14" r="7"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 7V4M10 4h4M12 14l3-3"/>
+    </svg>
+    <div>
+      <div class="text-base font-bold text-white leading-tight">Imperial Soccer</div>
+      <div class="text-xs text-white/70">Jogos e Minutagem</div>
+    </div>
+  </header>
+
+  <!-- Toast notification -->
+  <div
+    *ngIf="toast"
+    class="fixed top-6 right-4 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl pointer-events-none max-w-xs text-white"
+    [class.bg-imperial-green]="toast.type === 'success'"
+    [class.bg-imperial-red]="toast.type === 'error'"
+    role="status"
+    aria-live="polite"
+  >{{ toast.message }}</div>
+
+  <!-- Main -->
+  <main class="flex-1 w-full max-w-2xl mx-auto px-4 py-6 space-y-4">
+
+    <!-- ── Section: Lista de Jogos ─────────────────────────────────────────── -->
+    <section *ngIf="view === 'lista'">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-imperial-text">Jogos Realizados</h2>
+        <button
+          type="button"
+          (click)="abrirNovoJogo()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Novo Jogo
+        </button>
+      </div>
+
+      <div class="space-y-2" role="list" aria-live="polite">
+        <app-empty-state *ngIf="jogosOrdenados.length === 0" message="Nenhum jogo registrado ainda."></app-empty-state>
+
+        <div *ngFor="let jogo of jogosOrdenados" class="bg-imperial-card rounded-xl px-4 py-3 border border-imperial-border shadow-sm flex items-center gap-3" role="listitem">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm text-imperial-text truncate">{{ jogo.nome }}</div>
+            <div class="text-xs text-imperial-text-muted mt-0.5">
+              {{ formatDate(jogo.data) }} · {{ jogo.participacoes.length }} aluno{{ jogo.participacoes.length !== 1 ? 's' : '' }}
+            </div>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button type="button" (click)="abrirEdicaoJogo(jogo)" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-border text-imperial-text-muted hover:text-imperial-text hover:border-imperial-text-muted transition-all">Editar</button>
+            <button type="button" (click)="excluirJogo(jogo.id)" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-imperial-red/30 text-imperial-red hover:bg-imperial-red-light transition-all">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section: Formulário de Jogo ────────────────────────────────────── -->
+    <section *ngIf="view === 'form'">
+      <h2 class="text-lg font-bold text-imperial-text mb-4">{{ tituloForm }}</h2>
+
+      <form class="bg-imperial-card rounded-2xl p-5 space-y-4 border border-imperial-border shadow-sm" novalidate (ngSubmit)="salvarJogo()">
+
+        <!-- Data -->
+        <div>
+          <label for="inputDataJogo" class="block text-sm font-medium text-imperial-text mb-1">
+            Data de Realização <span class="text-imperial-red">*</span>
+          </label>
+          <input
+            type="date"
+            id="inputDataJogo"
+            [(ngModel)]="dataJogo"
+            name="dataJogo"
+            [max]="hoje"
+            class="w-full sm:w-64 px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+          />
+          <p *ngIf="erroData" class="mt-1 text-xs text-imperial-red" role="alert">{{ erroData }}</p>
+        </div>
+
+        <!-- Nome -->
+        <div>
+          <label for="inputNomeJogo" class="block text-sm font-medium text-imperial-text mb-1">
+            Nome do Jogo <span class="text-imperial-red">*</span>
+          </label>
+          <input
+            type="text"
+            id="inputNomeJogo"
+            [(ngModel)]="nomeJogo"
+            name="nomeJogo"
+            placeholder="Ex.: vs. América"
+            class="w-full px-4 py-2.5 rounded-lg bg-imperial-bg border border-imperial-border text-imperial-text placeholder-imperial-text-muted focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent transition-all"
+          />
+          <p *ngIf="erroNome" class="mt-1 text-xs text-imperial-red" role="alert">{{ erroNome }}</p>
+        </div>
+
+        <!-- Participantes -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-imperial-text">Participantes</span>
+            <button
+              type="button"
+              (click)="toggleSeletor()"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-imperial-green text-imperial-green text-xs font-medium hover:bg-imperial-green hover:text-white transition-all"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Adicionar Alunos
+            </button>
+          </div>
+
+          <!-- Painel Seletor de Alunos -->
+          <div *ngIf="mostrarSeletor" class="bg-imperial-bg rounded-xl border border-imperial-border p-4 mb-3 space-y-3">
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                [(ngModel)]="filtroNomeSeletor"
+                name="filtroNomeSeletor"
+                placeholder="Buscar por nome..."
+                class="flex-1 px-3 py-2 rounded-lg bg-imperial-card border border-imperial-border text-imperial-text placeholder-imperial-text-muted text-sm focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+              />
+              <select
+                [(ngModel)]="filtroCategoriaSeletor"
+                name="filtroCategoriaSeletor"
+                class="sm:w-44 px-3 py-2 rounded-lg bg-imperial-card border border-imperial-border text-imperial-text text-sm focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+              >
+                <option value="">Todas as categorias</option>
+                <option *ngFor="let cat of categorias" [value]="cat">{{ categoriasLabels[cat] }}</option>
+              </select>
+            </div>
+
+            <div *ngIf="alunosFiltrados.length > 0" class="flex items-center gap-3 px-3 py-2 border-b border-imperial-border">
+              <input
+                type="checkbox"
+                [checked]="selecionarTodosChecked"
+                [indeterminate]="selecionarTodosIndeterminate"
+                [disabled]="elegiveisCount === 0"
+                (change)="onSelecionarTodosChange($any($event.target).checked)"
+                id="checkSelecionarTodos"
+                class="w-4 h-4 rounded"
+              />
+              <label for="checkSelecionarTodos" class="text-sm font-medium text-imperial-text cursor-pointer select-none">Selecionar todos</label>
+            </div>
+
+            <div class="space-y-1 max-h-52 overflow-y-auto">
+              <div *ngIf="alunosFiltrados.length === 0" class="py-4 text-center text-imperial-text-muted text-sm">Nenhum aluno encontrado.</div>
+              <label
+                *ngFor="let aluno of alunosFiltrados"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-imperial-card cursor-pointer select-none"
+                [class.opacity-50]="jaAdicionado(aluno.id)"
+              >
+                <input
+                  type="checkbox"
+                  class="w-4 h-4 rounded"
+                  [checked]="isSelecionado(aluno.id)"
+                  [disabled]="jaAdicionado(aluno.id)"
+                  (change)="toggleSelecao(aluno.id, $any($event.target).checked)"
+                />
+                <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" [style.background-color]="avatarColor(aluno.id)">{{ initials(aluno.nome) }}</div>
+                <div class="min-w-0">
+                  <div class="font-medium text-sm text-imperial-text truncate">{{ aluno.nome }}</div>
+                  <div class="text-xs text-imperial-text-muted">{{ categoriasLabels[aluno.categoria] || aluno.categoria }}</div>
+                </div>
+              </label>
+            </div>
+
+            <button
+              type="button"
+              (click)="confirmarSelecao()"
+              class="w-full py-2 rounded-lg bg-imperial-green hover:opacity-90 text-white text-sm font-semibold transition-all shadow-sm"
+            >
+              Adicionar Selecionados
+            </button>
+          </div>
+
+          <!-- Lista de participantes -->
+          <div class="space-y-2">
+            <div *ngFor="let p of participacoesAtual" class="bg-imperial-card rounded-xl border border-imperial-border px-4 py-3 flex items-center gap-3">
+              <div class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold" [style.background-color]="avatarColor(p.alunoId)">{{ initials(alunoPorId(p.alunoId)?.nome || '') }}</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm text-imperial-text truncate">{{ alunoPorId(p.alunoId)?.nome }}</div>
+                <div class="text-xs text-imperial-text-muted">{{ categoriasLabels[alunoPorId(p.alunoId)?.categoria || ''] }}</div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-xs text-imperial-text-muted">min</span>
+                <input
+                  type="number"
+                  min="0"
+                  [(ngModel)]="p.minutos"
+                  [name]="'min_' + p.alunoId"
+                  class="w-16 px-2 py-1.5 rounded-lg border border-imperial-border text-imperial-text text-sm text-center bg-imperial-bg focus:outline-none focus:ring-2 focus:ring-imperial-green focus:border-transparent"
+                  [attr.aria-label]="'Minutos de ' + (alunoPorId(p.alunoId)?.nome || '')"
+                />
+                <button
+                  type="button"
+                  (click)="removerParticipante(p.alunoId)"
+                  class="text-xl leading-none text-imperial-text-muted hover:text-imperial-red transition-colors"
+                  [attr.aria-label]="'Remover ' + (alunoPorId(p.alunoId)?.nome || '')"
+                >×</button>
+              </div>
+            </div>
+            <p *ngIf="participacoesAtual.length === 0" class="text-xs text-imperial-text-muted py-3 text-center">Nenhum aluno adicionado ainda.</p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-1 flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl bg-imperial-green hover:opacity-90 text-white font-semibold transition-all duration-200 shadow-md focus:outline-none focus:ring-2 focus:ring-imperial-green focus:ring-offset-2"
+          >
+            Salvar Jogo
+          </button>
+          <button
+            type="button"
+            (click)="cancelarForm()"
+            class="w-full sm:w-auto px-8 py-3 rounded-xl border border-imperial-border text-imperial-text-muted hover:text-imperial-text font-medium transition-all"
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Menu de navegação inferior -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-imperial-card border-t border-imperial-border flex h-16 z-40">
+    <a routerLink="/students" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Alunos">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span class="text-xs font-medium">Alunos</span>
+    </a>
+    <a routerLink="/training" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Treino">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <span class="text-xs font-medium">Treino</span>
+    </a>
+    <a routerLink="/games" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-green border-t-2 border-imperial-green font-semibold" aria-label="Jogos" aria-current="page">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="14" r="6"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8V5M10 5h4M12 14l2.5-2.5"/>
+      </svg>
+      <span class="text-xs font-medium">Jogos</span>
+    </a>
+    <a routerLink="/dashboard" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Dashboard">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6m0 13l-3-3m3 3l3-3M15 5v13m0-13l-3 3m3-3l3 3"/>
+      </svg>
+      <span class="text-xs font-medium">Dashboard</span>
+    </a>
+    <a *ngIf="authService.isAdmin()" routerLink="/users" class="flex-1 flex flex-col items-center justify-center gap-1 text-imperial-text-muted hover:text-imperial-green transition-colors" aria-label="Usuários">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+      <span class="text-xs font-medium">Usuários</span>
+    </a>
+  </nav>
+
+</div>

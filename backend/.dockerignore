@@ -1,0 +1,21 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+
+# Projeto de testes não entra na imagem (o Dockerfile publica só Imperial.Api)
+Imperial.Api.Tests/
+
+# Overrides locais de configuração (podem conter segredos) — nunca na imagem.
+# O appsettings.json base (sem segredos) é copiado; os *.Development/Production/Local não.
+**/appsettings.*.json
+
+# Docker/infra
+.dockerignore
+Dockerfile
+
+# Diversos
+**/.DS_Store
+**/Thumbs.db
+**/*.log

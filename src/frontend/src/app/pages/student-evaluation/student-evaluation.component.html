@@ -1,0 +1,104 @@
+<div class="bg-imperial-bg text-imperial-text min-h-screen">
+  <header class="w-full bg-imperial-green shadow-md px-5 py-4 flex items-center justify-between">
+    <div>
+      <div class="text-base font-bold text-white leading-tight">{{ tipo?.nome || 'Avaliação' }}</div>
+      <div class="text-xs text-white/70">{{ aluno?.nome }}</div>
+    </div>
+    <button type="button" (click)="voltar()" class="text-sm font-semibold text-white/90 hover:text-white">← Voltar</button>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-4 py-6">
+    <div *ngIf="carregando" class="text-center text-imperial-text-muted py-12">Carregando...</div>
+
+    <div *ngIf="!carregando && tipo">
+      <!-- Formulário de nova avaliação -->
+      <section class="bg-imperial-card rounded-2xl border border-imperial-border shadow-sm p-5 mb-6">
+        <h2 class="text-lg font-bold text-imperial-text mb-4">Nova Avaliação</h2>
+
+        <label class="block text-sm font-medium text-imperial-text mb-1">Data de Realização</label>
+        <input
+          type="date"
+          [(ngModel)]="data"
+          class="w-full sm:w-60 rounded-lg border border-imperial-border bg-imperial-bg px-3 py-2 text-sm mb-5"
+        />
+
+        <div *ngFor="let item of tipo.itens" class="mb-4">
+          <div class="text-sm font-medium text-imperial-text mb-2">{{ item.nome }}</div>
+          <div class="grid grid-cols-5 gap-2">
+            <button
+              *ngFor="let n of notasPossiveis"
+              type="button"
+              (click)="selecionar(item.id, n)"
+              class="rounded-lg border px-2 py-2 text-center transition-colors"
+              [class.border-imperial-green]="notas[item.id] === n"
+              [class.bg-imperial-green-light]="notas[item.id] === n"
+              [class.text-imperial-green]="notas[item.id] === n"
+              [class.border-imperial-border]="notas[item.id] !== n"
+              [class.text-imperial-text-muted]="notas[item.id] !== n"
+            >
+              <div class="text-base font-bold">{{ n }}</div>
+              <div class="text-[10px] leading-tight">{{ rotulos[n] }}</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-5">
+          <button
+            type="button"
+            (click)="salvar()"
+            [disabled]="salvando"
+            class="px-5 py-2 rounded-lg bg-imperial-green text-white text-sm font-medium hover:opacity-90 disabled:opacity-60"
+          >
+            Salvar Avaliação
+          </button>
+          <button
+            type="button"
+            (click)="voltar()"
+            class="px-5 py-2 rounded-lg border border-imperial-border text-imperial-text text-sm font-medium hover:bg-imperial-bg"
+          >
+            Cancelar
+          </button>
+        </div>
+      </section>
+
+      <!-- Evolução por item -->
+      <section class="bg-imperial-card rounded-2xl border border-imperial-border shadow-sm p-5 mb-6">
+        <h2 class="text-base font-bold text-imperial-text mb-3">Evolução do Aluno</h2>
+        <div *ngIf="historico.length === 0" class="text-center text-imperial-text-muted text-sm py-8">
+          Registre avaliações para visualizar o gráfico de evolução.
+        </div>
+        <div *ngIf="historico.length > 0" class="relative h-64">
+          <canvas #evolucaoCanvas></canvas>
+        </div>
+      </section>
+
+      <!-- Histórico -->
+      <section class="bg-imperial-card rounded-2xl border border-imperial-border shadow-sm p-5">
+        <h2 class="text-base font-bold text-imperial-text mb-3">Histórico de Avaliações</h2>
+        <div *ngIf="historico.length === 0" class="text-center text-imperial-text-muted text-sm py-6">
+          Nenhuma avaliação registrada ainda.
+        </div>
+        <ul *ngIf="historico.length > 0" class="space-y-2">
+          <li
+            *ngFor="let av of historico.slice().reverse()"
+            class="rounded-xl border border-imperial-border px-4 py-3"
+          >
+            <div class="text-sm font-semibold text-imperial-text mb-1">{{ formatarData(av.data) }}</div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-imperial-text-muted">
+              <span *ngFor="let p of av.pontuacoes">{{ nomeItem(p.itemId) }}: <b class="text-imperial-green">{{ p.nota }}</b></span>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <div
+    *ngIf="toast"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg text-sm text-white z-50"
+    [class.bg-imperial-green]="toast.type === 'success'"
+    [class.bg-imperial-red]="toast.type === 'error'"
+  >
+    {{ toast.message }}
+  </div>
+</div>
