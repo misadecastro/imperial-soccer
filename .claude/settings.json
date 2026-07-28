@@ -82,7 +82,8 @@
       "Bash(curl -s -o /dev/null -D - -X OPTIONS http://localhost:8080/api/v1/students -H 'Origin: https://front-b.exemplo' -H 'Access-Control-Request-Method: GET')",
       "Bash(curl -s -o /dev/null -D - -X OPTIONS http://localhost:8080/api/v1/students -H 'Origin: https://evil.exemplo' -H 'Access-Control-Request-Method: GET')",
       "Bash(docker run *)",
-      "Bash(echo \"exit code do container: $?\")"
+      "Bash(echo \"exit code do container: $?\")",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/create-new-feature.ps1\" \"vamos fazer o docker file para rodar o front no render, como foi feito com o backend criando um novo web service plano free\" -Json -ShortName \"frontend-docker-render\" \"Dockerize frontend for Render deploy\")"
     ],
     "additionalDirectories": [
       "\\tmp",
