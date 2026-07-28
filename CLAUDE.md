@@ -1,6 +1,6 @@
 ﻿# imperial Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-07-27
+Auto-generated from all feature plans. Last updated: 2026-07-28
 
 ## Active Technologies
 - HTML5 + JavaScript ES Modules (browsers modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (002-student-register-eval)
@@ -44,6 +44,8 @@ Auto-generated from all feature plans. Last updated: 2026-07-27
 - MongoDB — estende a coleção `students` (campos da ficha embutidos); novas coleções `evaluation_types` (soft delete) e `evaluations` (registros/histórico). Foto do atleta como **data URI base64** embutida no documento do aluno (sem blob storage) (022-student-profile-card)
 - C# 12 / .NET 8 (`Imperial.Api`, `Microsoft.NET.Sdk.Web`) + já existentes (`MongoDB.Driver` 3.9, `JwtBearer` 8, `Identity`, `Swashbuckle`). Novo: imagens base Docker oficiais `mcr.microsoft.com/dotnet/sdk:8.0` (build) e `mcr.microsoft.com/dotnet/aspnet:8.0` (runtime) (023-backend-docker-render)
 - MongoDB **externo/gerenciado** (ex.: Atlas) via string de conexão em variável de ambiente; Render não provê o banco (023-backend-docker-render)
+- TypeScript 5.x / Angular 18 (`src/frontend`, builder `@angular-devkit/build-angular:application` — esbuild) + já existentes (Angular CLI 18, Tailwind via build, Chart.js). Novo: imagens base Docker `node:20-alpine` (build) e `nginx:alpine` (runtime, com `envsubst`) (024-frontend-docker-render)
+- N/A (frontend estático; sem estado no servidor) (024-frontend-docker-render)
 
 - HTML5 + JavaScript ES Modules (navegadores modernos 2023+) + Tailwind CSS v3 via CDN (`https://cdn.tailwindcss.com`) — zero instalação (001-home-login-page)
 
@@ -64,9 +66,9 @@ npm test; npm run lint
 HTML5 + JavaScript ES Modules (navegadores modernos 2023+): Follow standard conventions
 
 ## Recent Changes
+- 024-frontend-docker-render: Added TypeScript 5.x / Angular 18 (`src/frontend`, builder `@angular-devkit/build-angular:application` — esbuild) + já existentes (Angular CLI 18, Tailwind via build, Chart.js). Novo: imagens base Docker `node:20-alpine` (build) e `nginx:alpine` (runtime, com `envsubst`)
 - 023-backend-docker-render: Added C# 12 / .NET 8 (`Imperial.Api`, `Microsoft.NET.Sdk.Web`) + já existentes (`MongoDB.Driver` 3.9, `JwtBearer` 8, `Identity`, `Swashbuckle`). Novo: imagens base Docker oficiais `mcr.microsoft.com/dotnet/sdk:8.0` (build) e `mcr.microsoft.com/dotnet/aspnet:8.0` (runtime)
 - 022-student-profile-card: Added C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver`, `Microsoft.AspNetCore.Authentication.JwtBearer` (já presentes); Angular `HttpClient` (já provido), Chart.js via `chart.js/auto` (já usado no dashboard) — **sem dependência nova**
-- 021-remove-evaluation: Added C# 12 / .NET 8 (backend `Imperial.Api`); TypeScript 5.x / Angular 18 (frontend `src/frontend`) + `MongoDB.Driver` (backend), Angular `HttpClient`/`Router` (frontend) — nenhuma dependência nova; possivelmente **remover** dependências que ficam órfãs (Chart.js só se nenhum outro gráfico permanecer — ver research)
 
 
 <!-- MANUAL ADDITIONS START -->
@@ -161,6 +163,21 @@ Render como Web Service. Passo a passo e mapa de aceitação em
 - O container escuta na porta injetada em `PORT` (fallback `8080`); `UseHttpsRedirection` só em
   Development (TLS terminado na borda do Render); health check em `/health`.
 - MongoDB é externo (ex.: Atlas) — liberar o acesso de rede/IP do Render no provedor do banco.
+
+### Deploy do Frontend no Render (Docker — feature 024)
+
+O frontend é containerizado (`src/frontend/Dockerfile`, contexto `src/frontend/`) e publicado
+como um **segundo** Web Service no Render (plano free). Multi-stage: `node:20-alpine` (`ng build`)
+→ `nginx:alpine` servindo `dist/imperial-frontend/browser/`. Passo a passo em
+`specs/024-frontend-docker-render/quickstart.md`.
+
+- **Endereço da API em runtime** (sem rebuild): o entrypoint gera `/env.js`
+  (`window.__env.apiUrl`) a partir da variável `API_URL`; `environment.ts` lê esse valor (getter,
+  fallback localhost); `public/env.js` cobre o `ng serve`. `<script src="env.js">` no `index.html`.
+- **Porta**: nginx escuta em `${PORT}` (envsubst restrito a `${PORT}` para não tocar `$uri`/`$host`).
+- **SPA fallback**: `try_files $uri $uri/ /index.html` — deep links e refresh não dão 404.
+- **Dependência cruzada**: adicionar a URL pública do front em `Cors__AllowedOrigins__0` do
+  backend (feature 023) e redeploy do backend, senão o navegador bloqueia por CORS.
 
 <!-- MANUAL ADDITIONS END -->
 

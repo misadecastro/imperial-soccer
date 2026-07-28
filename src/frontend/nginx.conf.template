@@ -1,0 +1,18 @@
+# Servido em /etc/nginx/conf.d/default.conf após envsubst de ${PORT} (feature 024).
+server {
+    listen       ${PORT};
+    server_name  _;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    # Config de runtime da API — gerada no startup; nunca cachear.
+    location = /env.js {
+        add_header Cache-Control "no-store";
+    }
+
+    # SPA: rotas do Angular resolvem para o index.html (deep links / refresh).
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

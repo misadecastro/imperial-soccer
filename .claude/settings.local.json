@@ -34,7 +34,11 @@
       "Bash(powershell.exe -File .specify/scripts/powershell/setup-plan.ps1 -Json)",
       "Bash(powershell.exe -File .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
       "Bash(powershell.exe -File .specify/scripts/powershell/check-prerequisites.ps1 -Json)",
-      "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustes na tela de treino: listagem de treinos por data com presentes e principios, CRUD completo \\(adicionar/editar/excluir\\), e filtro de fundamentos conforme momento do jogo selecionado\" -Json -ShortName \"training-crud-list\")"
+      "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 \"Ajustes na tela de treino: listagem de treinos por data com presentes e principios, CRUD completo \\(adicionar/editar/excluir\\), e filtro de fundamentos conforme momento do jogo selecionado\" -Json -ShortName \"training-crud-list\")",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "PowerShell(& \"d:/Projetos/Nova pasta/imperial-soccer/.specify/scripts/powershell/check-prerequisites.ps1\" -Json -RequireTasks -IncludeTasks)",
+      "Bash(docker build *)",
+      "Bash(docker rm *)"
     ]
   }
 }

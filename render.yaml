@@ -1,4 +1,6 @@
-# Render Blueprint — backend Imperial.Api (feature 023).
+# Render Blueprint — Imperial Soccer.
+#  - imperial-api   : backend .NET (feature 023)
+#  - imperial-front : frontend Angular servido por nginx (feature 024)
 # Segredos usam `sync: false`: o Render pede o valor no painel; NUNCA versionados aqui.
 services:
   - type: web
@@ -33,4 +35,19 @@ services:
       - key: AdminSeed__Email
         sync: false
       - key: AdminSeed__Senha            # segredo
+        sync: false
+
+  # ── Frontend Angular (feature 024) ──────────────────────────────────────────
+  - type: web
+    name: imperial-front
+    runtime: docker
+    dockerfilePath: ./src/frontend/Dockerfile
+    dockerContext: ./src/frontend
+    healthCheckPath: /
+    plan: free
+    autoDeploy: true
+    envVars:
+      # URL pública da API (backend). Ex.: https://imperial-api.onrender.com/api/v1
+      # Lembre de adicionar a URL pública deste front em Cors__AllowedOrigins__0 do backend.
+      - key: API_URL
         sync: false
